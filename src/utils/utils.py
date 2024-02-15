@@ -22,3 +22,17 @@ def result_get_id(result) -> str:
     """
 
     return json.loads(json_util.dumps(result.inserted_id))["$oid"]
+
+
+def query_get_id(query) -> str:
+    """Function which retrieves the id from the response of ".find_one()"
+
+    Args:
+        query (any): whatever pymongo's ".find_one()" retrieves
+
+    Returns:
+        str: the id in plain text, like God intended
+    """
+
+    # return json.loads(json.)
+    pass

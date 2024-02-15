@@ -62,7 +62,7 @@ def test_login_user():
 def test_hello():
     """Test of simple hello call"""
     response = requests.get(
-        api, headers={"content-type": "applicaton/json", "token": token.token}
+        api, headers={"content-type": "applicaton/json", "token": str(token.token)}
     )
     assert response.status_code == 200
     assert response.json()["response"] == "hello there!"
