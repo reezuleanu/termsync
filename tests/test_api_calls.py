@@ -71,7 +71,11 @@ def test_hello():
 def test_invalid_token():
     """Test of hello call, with an invalid token. Should fail"""
     response = requests.get(
-        api, headers={"content-type": "application/json", "token": "wrongasstoken"}
+        api,
+        headers={
+            "content-type": "application/json",
+            "token": "99999999-9999-9999-9999-20692ac2eafb",  # bad token
+        },
     )
     assert response.status_code == 403
     assert response.json()["detail"] == "Unauthorized access"

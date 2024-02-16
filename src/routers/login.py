@@ -5,7 +5,7 @@ from bson import json_util
 
 sys.path.append("../")
 from database import db
-from utils import bson2dict, result_get_id
+from utils import bson2dict
 from models import Token
 
 router = APIRouter()
@@ -28,7 +28,10 @@ def get_login(data: dict[str, str]) -> Token:
 
     # generate token, then add it to database
     token = Token.generate(username)
-    token = token.convert(user_id=str(query["_id"]))
+
+    # convert the database id to a plain string because i have had it with the way mongodb stores objects
+    token = token.convert(user_id=str(query["_id"]["$oid"]))
+
     if db.sessions.insert_one(token.model_dump()).acknowledged == False:
         raise HTTPException(502, "could not add session token to the database")
     return token

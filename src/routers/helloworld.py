@@ -1,8 +1,9 @@
 from fastapi import APIRouter, Request, HTTPException
 import sys
+from uuid import UUID
 
 sys.path.append("../src")
-from database import db
+from database import db, authorize_token
 from src.models import Token, Token_DB
 
 router = APIRouter()
@@ -20,17 +21,15 @@ def hello(request: Request) -> dict:
     """
     # get token from request body and check if it's in the database
     token = request.headers["token"]
-    query = db.sessions.find_one({"token": token})
-    if query == None:
-        raise HTTPException(403, "Unauthorized access")
 
-    # validate token from db
+    # validate token data
     try:
-        token = Token_DB(**query)
+        token = UUID(token)
+        token = Token(token=token)
     except:
-        raise HTTPException(502, "Something went wrong when checking session token")
+        raise HTTPException(406, "invalid request")
 
-    if token.check_alive() == False:
+    if not authorize_token(token):
         raise HTTPException(403, "Unauthorized access")
 
     return {"response": "hello there!"}

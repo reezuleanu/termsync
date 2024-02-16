@@ -7,10 +7,7 @@ from datetime import datetime, timedelta
 class Token(BaseModel):
     """Session Token dataclass"""
 
-    # could not use UUID type because mongodb has trouble converting it to bson
     token: UUID
-    # time when token expires (72 hours from creation)
-    expiration: datetime
 
     @classmethod
     def generate(cls, username: str) -> Token:
@@ -24,23 +21,8 @@ class Token(BaseModel):
         # token = str(uuid5(namespace=namespace, name=username))
         token = uuid5(namespace=namespace, name=username)
 
-        # calculate time when token expires
-        lifetime = timedelta(hours=72)
-        expiration = datetime.now() + lifetime
-
         # return token
-        return cls(token=token, expiration=expiration)
-
-    def check_alive(self) -> bool:
-        """Method which checks if the token has expired already"""
-
-        # current time
-        now = datetime.now()
-
-        # a timedelta object with no time in it, equivalent to 0
-        null_time = timedelta()
-
-        return self.expiration - now > null_time
+        return cls(token=token)
 
     def convert(self, user_id: str) -> Token_DB:
         """Method to convert the Token class to Token_DB, a class better suited for database storage
@@ -48,11 +30,39 @@ class Token(BaseModel):
         Returns:
             Token_DB: converted token
         """
+
         data = self.model_dump()
         data["token"] = str(self.token)
-        return Token_DB(user_id=user_id, **data)
+
+        # calculate time when token expires
+        lifetime = timedelta(hours=72)
+        expiration = datetime.now() + lifetime
+
+        # return token
+        return Token_DB(user_id=user_id, expiration=expiration, **data)
 
 
 class Token_DB(Token):
+
+    # this is a string here because mongodb can't serialize it properly or something
     user_id: str
     token: str
+    authorization: str | None = "user"
+
+    # time when token expires (72 hours from creation)
+    expiration: datetime
+
+    def check_alive(self) -> bool:
+        """Method which checks if the token is still valid"""
+
+        # current time
+        now = datetime.now()
+
+        # removing timezone info
+        now = now.replace(tzinfo=None)
+        self.expiration = self.expiration.replace(tzinfo=None)
+
+        # a timedelta object with no time in it, equivalent to 0
+        null_time = timedelta()
+
+        return self.expiration - now > null_time

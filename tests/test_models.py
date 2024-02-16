@@ -4,7 +4,15 @@ from uuid import UUID
 from datetime import datetime, timedelta
 
 sys.path.append("../src")
-from src.models import Token, Task, User, Project, Discrete_Task, Milestone_Task
+from src.models import (
+    Token,
+    Token_DB,
+    Task,
+    User,
+    Project,
+    Discrete_Task,
+    Milestone_Task,
+)
 
 
 ### TOKENS ###
@@ -20,12 +28,13 @@ def test_token_generate() -> None:
 def test_token_validate() -> None:
     """Test token validation"""
 
-    token = Token(
+    token = Token_DB(
+        user_id="userid",
         token="8a488bfe-c67b-5593-a97e-4a80bf081aa4",
         expiration=datetime.now() + timedelta(hours=72),
     )
     assert token
-    assert token.token == UUID("8a488bfe-c67b-5593-a97e-4a80bf081aa4")
+    assert token.token == "8a488bfe-c67b-5593-a97e-4a80bf081aa4"
     assert token.check_alive()
 
     # expired token
