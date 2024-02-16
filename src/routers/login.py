@@ -33,6 +33,6 @@ def get_login(data: dict[str, str]) -> Token:
     # way mongodb stores objects
     token = token.convert(user_id=str(query["_id"]["$oid"]))
 
-    if not db.sessions.insert_one(token.model_dump()).acknowledged is False:
+    if db.sessions.insert_one(token.model_dump()).acknowledged is False:
         raise HTTPException(502, "could not add session token to the database")
     return token
