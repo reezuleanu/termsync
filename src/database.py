@@ -1,13 +1,19 @@
+# global imports
 from pymongo import MongoClient
-import sys
 from datetime import datetime
+import sys
 
+# relative imports
 sys.path.append("../")
 from src.models import Token, Token_DB
 from src.utils import bson2dict
 
+# database configuration
 client = MongoClient("127.0.0.1", port=27017)
 db = client.tests
+
+
+# database functions
 
 
 def authorize_token(token: Token, auth_level: str | None = "user") -> bool:
@@ -28,13 +34,14 @@ def authorize_token(token: Token, auth_level: str | None = "user") -> bool:
 
     query = db.sessions.find_one(token_data)
 
-    if query == None:
+    if query is None:
         return False
 
     # check if the token is not expired
     token_db_data = bson2dict(query)
 
-    # convert whatever the hell mongodb stores (i am already sick of its typing bullshit) to a datetime object
+    # convert whatever the hell mongodb stores (i am already sick of its
+    # typing bullshit) to a datetime object
     token_db_data["expiration"] = datetime.fromisoformat(
         token_db_data["expiration"]["$date"]
     )

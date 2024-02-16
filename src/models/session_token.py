@@ -25,7 +25,8 @@ class Token(BaseModel):
         return cls(token=token)
 
     def convert(self, user_id: str) -> Token_DB:
-        """Method to convert the Token class to Token_DB, a class better suited for database storage
+        """Method to convert the Token class to Token_DB, a class better
+        suited for database storage
 
         Returns:
             Token_DB: converted token
@@ -44,7 +45,8 @@ class Token(BaseModel):
 
 class Token_DB(Token):
 
-    # this is a string here because mongodb can't serialize it properly or something
+    # this is a string here because mongodb can't serialize it properly or
+    # something
     user_id: str
     token: str
     authorization: str | None = "user"

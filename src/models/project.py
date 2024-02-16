@@ -14,7 +14,9 @@ class Project(BaseModel):
     # task related methods
 
     def add_task(self, task: Task) -> bool:
-        """Add a single task to the project (could get messy if I tried to accomodate for multiple tasks at once, so I will do it like this for now)"""
+        """Add a single task to the project (could get messy if I tried to
+        accomodate for multiple tasks at once, so I will do it like this for
+        now)"""
 
         # check if there is a task with that name already, then add it
         if task in self.tasks:
@@ -53,7 +55,8 @@ class Project(BaseModel):
                 duplicates = True
                 continue
             self.members.append(member)
-        # if everything went well, return true. if some users could not be added, return false
+        # if everything went well, return true. if some users could not be
+        # added, return false
         if duplicates:
             return False
         return True
@@ -66,7 +69,8 @@ class Project(BaseModel):
                 not_found = True
                 continue
             self.members.remove(member)
-        # if everything went well, return true. if some users could not be removed, return false
+        # if everything went well, return true. if some users could not be
+        # removed, return false
         if not_found:
             return False
         return True

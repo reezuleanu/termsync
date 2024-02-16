@@ -1,8 +1,8 @@
+# global imports
 from fastapi import APIRouter, HTTPException
 import sys
-import json
-from bson import json_util
 
+# relative imports
 sys.path.append("../")
 from database import db
 from utils import bson2dict
@@ -20,7 +20,7 @@ def get_login(data: dict[str, str]) -> Token:
     # find user data in database, then compare username and password provided
     query = db.users.find_one({"username": username})
 
-    if query == None:
+    if query is None:
         raise HTTPException(401, "Incorrect username or password")
     query = bson2dict(query)
     if query["password"] != password:
@@ -29,9 +29,10 @@ def get_login(data: dict[str, str]) -> Token:
     # generate token, then add it to database
     token = Token.generate(username)
 
-    # convert the database id to a plain string because i have had it with the way mongodb stores objects
+    # convert the database id to a plain string because i have had it with the
+    # way mongodb stores objects
     token = token.convert(user_id=str(query["_id"]["$oid"]))
 
-    if db.sessions.insert_one(token.model_dump()).acknowledged == False:
+    if not db.sessions.insert_one(token.model_dump()).acknowledged is False:
         raise HTTPException(502, "could not add session token to the database")
     return token

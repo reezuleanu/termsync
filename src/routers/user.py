@@ -1,12 +1,12 @@
 # global imports
 from fastapi import HTTPException, APIRouter
+from bson import ObjectId
 import sys
 
 # relative imports
 sys.path.append("../")
 from models import User, User_DB
 from utils import bson2dict, result_get_id
-from bson import ObjectId
 from database import db
 
 
@@ -108,7 +108,7 @@ def update_user(data: User) -> User:
     user_id = ObjectId(user_data["id"])
     query = db.users.find_one({"_id": user_id})
 
-    if query == None:
+    if query is None:
         raise HTTPException(404, "could not find user")
 
     user_db_data = bson2dict(query)

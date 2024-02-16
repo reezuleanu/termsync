@@ -1,8 +1,8 @@
-import requests
+# global imports
 import sys
-from uuid import UUID
 from datetime import datetime, timedelta
 
+# relative imports
 sys.path.append("../src")
 from src.models import (
     Token,

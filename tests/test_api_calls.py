@@ -1,9 +1,10 @@
+# global imports
 import requests
 import sys
 import subprocess
 
+# relative imports
 sys.path.append("../src")
-
 from src.models import User, Token
 
 # app url and port, change if needed

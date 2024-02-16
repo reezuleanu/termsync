@@ -1,10 +1,12 @@
+# global imports
 from fastapi import APIRouter, Request, HTTPException
-import sys
 from uuid import UUID
+import sys
 
+# relative imports
 sys.path.append("../src")
-from database import db, authorize_token
-from src.models import Token, Token_DB
+from database import authorize_token
+from src.models import Token
 
 router = APIRouter()
 
@@ -26,7 +28,7 @@ def hello(request: Request) -> dict:
     try:
         token = UUID(token)
         token = Token(token=token)
-    except:
+    except TypeError:
         raise HTTPException(406, "invalid request")
 
     if not authorize_token(token):
