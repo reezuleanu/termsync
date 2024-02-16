@@ -1,0 +1,4 @@
+[flake8]
+
+# i am not a professional programmer and use a formatter anyway, still going to use flake8 to catch any errors and such in CI
+ignore = F401, E501, E722, E712, E711, E402, W503, E266
