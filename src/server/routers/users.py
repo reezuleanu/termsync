@@ -1,20 +1,19 @@
 # global imports
-from fastapi import HTTPException, APIRouter
+from fastapi import HTTPException, APIRouter, Body
 from bson import ObjectId
-import sys
 
 # relative imports
-sys.path.append("../")
-from models import User, User_DB
-from utils import bson2dict, result_get_id
-from database import db
+from ..models import User, User_DB
+from ..utils import bson2dict, result_get_id
+from ..database import db
 
 
 router = APIRouter()
 
 
 @router.post("/user/")
-def create_user(data: dict[str, User | str]) -> User:
+# def create_user(data: dict[str, User | str]) -> User:
+def create_user(user: User, password: str = Body()) -> User:
     """Call which creates a user in the database
 
     Args:
@@ -24,8 +23,9 @@ def create_user(data: dict[str, User | str]) -> User:
         User: user data, now containing the database ID
     """
     # check if there already is a user with that username
-    user_data = data["user"].model_dump()
-    password = data["password"]
+    # user_data = data["user"].model_dump()
+    # password = data["password"]
+    user_data = user.model_dump()
     if db.users.find_one({"username": user_data["username"]}) != None:
         raise HTTPException(406, "username already taken")
 
@@ -76,7 +76,6 @@ def delete_user(data: dict[str, str]) -> dict:
 
 
 @router.get("/user/")
-# def get_user(data: dict[str, str]) -> User:
 def get_user(username: str) -> User:
     """Call which returns user data
 
@@ -93,7 +92,8 @@ def get_user(username: str) -> User:
     user_data = bson2dict(request)
     try:
         user = User(
-            **user_data
+            # **user_data
+            **request
         )  # if this fails, it means corrupted data got in the database somehow
     except:
         raise HTTPException(500, "corrupted user data")

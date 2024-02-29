@@ -3,10 +3,10 @@ from fastapi import APIRouter, HTTPException
 import sys
 
 # relative imports
-sys.path.append("../")
-from database import db
-from utils import bson2dict
-from models import Token
+# sys.path.append("../")
+from ..database import db
+from ..utils import bson2dict
+from ..models import Token
 
 router = APIRouter()
 

@@ -6,6 +6,7 @@ from .user import User
 
 class Project(BaseModel):
     id: str | None = None
+    owner_id: str | None = None
     name: str
     description: str | None = None
     tasks: List[Task] | None = []

@@ -4,9 +4,9 @@ from datetime import datetime
 import sys
 
 # relative imports
-sys.path.append("../")
-from src.models import Token, Token_DB
-from src.utils import bson2dict
+# sys.path.append("../")
+from .models import Token, Token_DB
+from .utils import bson2dict
 
 # database configuration
 client = MongoClient("127.0.0.1", port=27017)
@@ -16,7 +16,7 @@ db = client.tests
 # database functions
 
 
-def authorize_token(token: Token, auth_level: str | None = "user") -> bool:
+def authorize_token(token: Token, auth_level: str | None = "user") -> bool | Token:
     """Function which checks if the provided token is valid, and if
     the user has the required authorization for the API call
 
@@ -25,8 +25,8 @@ def authorize_token(token: Token, auth_level: str | None = "user") -> bool:
         auth_level (str): authorization level required ("user", "admin", etc.)
 
     Returns:
-        bool: if the token is valid and the user has sufficient
-        permissions
+        bool: if the token is invalid / the user doesn't have sufficient permissions
+        Token: if everything is alright
     """
     # check if token in database
     token_data = token.model_dump()
@@ -54,4 +54,4 @@ def authorize_token(token: Token, auth_level: str | None = "user") -> bool:
     if token_db.authorization != auth_level:
         return False
 
-    return True
+    return token_db
