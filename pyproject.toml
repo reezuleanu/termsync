@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "termsync-server"
+name = "termsync"
 version = "0.1.0"
-description = "The server for TermSync"
+description = "The repo for TermSync"
 authors = ["reezuleanu"]
 readme = "README.md"
 
