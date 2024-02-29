@@ -3,8 +3,8 @@ import sys
 from datetime import datetime, timedelta
 
 # relative imports
-sys.path.append("../src")
-from src.models import (
+# sys.path.append("../src")
+from src.server.models import (
     Token,
     Token_DB,
     Task,

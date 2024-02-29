@@ -4,8 +4,8 @@ import sys
 import subprocess
 
 # relative imports
-sys.path.append("../src")
-from src.models import User, Token, Project, Task
+# sys.path.append("../src")
+from src.server.models import User, Token, Project, Task
 
 # app url and port, change if needed
 # TODO learn subprocess calls
