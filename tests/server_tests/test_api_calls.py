@@ -1,20 +1,16 @@
 # global imports
 import requests
-import sys
-import subprocess
 
 # relative imports
-# sys.path.append("../src")
 from src.server.models import User, Token, Project, Task
 
 # app url and port, change if needed
-# TODO learn subprocess calls
-# subprocess.call(["poetry shell"], ["uvicorn main:app --port 2727 --reload"])
 api = "http://127.0.0.1:2727"
 
 # mock user object to be used for tests
 user = User(username="randomuser", full_name="pulea spataru")
 password = "123"
+
 # mock task objects
 task1 = None
 task2 = None
