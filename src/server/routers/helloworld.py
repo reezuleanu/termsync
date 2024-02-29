@@ -1,35 +1,24 @@
 # global imports
-from fastapi import APIRouter, Request, HTTPException
+from fastapi import APIRouter, Request, HTTPException, Depends, Body
 from uuid import UUID
 
 # relative imports
 from ..database import authorize_token
 from ..models import Token
+from ..dependencies import token_auth
 
 router = APIRouter()
 
 
 @router.get("/")
-def hello(request: Request) -> dict:
+def hello(token: Token = Depends(token_auth)) -> dict:
     """Simple Hello World API call
 
     Args:
-        request (Request): header should contain "token" token
+        token (Token): User Token.
 
     Returns:
-        dict: server response
+        dict: API response
     """
-    # get token from request body and check if it's in the database
-    # token = request.headers["token"]
 
-    # # validate token data
-    # try:
-    #     token = UUID(token)
-    #     token = Token(token=token)
-    # except TypeError:
-    #     raise HTTPException(406, "invalid request")
-
-    # if not authorize_token(token):
-    #     raise HTTPException(403, "Unauthorized access")
-
-    return {"response": "hello there!"}
+    return {"response": "hello there!", "token": token}

@@ -47,9 +47,8 @@ class Token_DB(Token):
 
     # this is a string here because mongodb can't serialize it properly or
     # something
-    user_id: str
+    user_id: UUID
     token: str
-    authorization: str | None = "user"
 
     # time when token expires (72 hours from creation)
     expiration: datetime

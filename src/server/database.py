@@ -1,10 +1,8 @@
 # global imports
 from pymongo import MongoClient
 from datetime import datetime
-import sys
 
 # relative imports
-# sys.path.append("../")
 from .models import Token, Token_DB
 from .utils import bson2dict
 
