@@ -5,7 +5,8 @@ from pydantic import ValidationError
 
 # relative imports
 from ..models import Project
-from ..database import db, authorize_token
+
+# from ..database import db, authorize_token
 from ..utils import result_get_id, bson2dict
 
 router = APIRouter()
