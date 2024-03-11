@@ -1,4 +1,5 @@
 from fastapi import HTTPException
+from pymongo import MongoClient
 from ..database import Database
 
 # database configuration
