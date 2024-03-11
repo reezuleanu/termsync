@@ -31,6 +31,7 @@ def test_setup() -> None:
 
 def test_token_auth() -> None:
     """Test token dependency in / endpoint"""
+
     test_token = "test_token"
     response = client.get(
         "/", headers={"content-type": "application/json", "token-uuid": test_token}
