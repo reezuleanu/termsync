@@ -11,7 +11,7 @@ from ..dependencies import db_depend, token_auth, admin_auth
 router = APIRouter()
 
 
-@router.post("/user/")
+@router.post("/users/")
 def create_user(
     user: User, password: str = Body(), db: Database = Depends(db_depend)
 ) -> Token:
@@ -30,7 +30,7 @@ def create_user(
     user_data = user.model_dump()
 
     if db.get_user(user_data["username"]) is not None:
-        raise HTTPException(406, "username already taken")
+        raise HTTPException(406, "Username already taken")
 
     # create appropriate class for the db then insert it
     user_db = User_DB(password=password, **user_data)
@@ -48,10 +48,10 @@ def create_user(
     return token
 
 
-@router.delete("/user/")
+@router.delete("/users/{username}")
 def delete_user(
+    username: str,
     user: User = Depends(token_auth),
-    username: str = Body(),
     password: str = Body(),
     db: Database = Depends(db_depend),
     admin: bool = Depends(admin_auth),
@@ -70,7 +70,7 @@ def delete_user(
     # query = db.get_user_by_username(username)
     user_db = db.get_user_db(username)
     if user_db is None:
-        raise HTTPException(404, "could not find user")
+        raise HTTPException(404, "Could not find user")
 
     if user.username != user_db.username and admin is False:
         raise HTTPException(401, "You cannot delete someone else's account")
@@ -81,12 +81,12 @@ def delete_user(
     rc = db.delete_user(username)
 
     if rc is False:
-        raise HTTPException(500, "could not delete user from database")
+        raise HTTPException(500, "Could not delete user from database")
 
-    return {"response": "User deleted successfully"}
+    return {"detail": "User deleted successfully"}
 
 
-@router.get("/user/{username}")
+@router.get("/users/{username}")
 def get_user(
     username: str, user: User = Depends(token_auth), db: Database = Depends(db_depend)
 ) -> User:
@@ -108,11 +108,11 @@ def get_user(
     return query
 
 
-@router.put("/user/")
+@router.put("/users/{username}")
 def update_user(
+    username: str,
     user_data: User,
     user: User = Depends(token_auth),
-    username: str = Body(),
     db: Database = Depends(db_depend),
     admin: bool = Depends(admin_auth),
 ) -> dict:
@@ -140,4 +140,4 @@ def update_user(
     if db.update_user(user_data, username) is False:
         raise HTTPException(500, "Could not update user")
 
-    return {"response": "User updated successfully"}
+    return {"detail": "User updated successfully"}
