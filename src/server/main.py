@@ -1,6 +1,8 @@
 from fastapi import FastAPI
+from mongomock import MongoClient
 from .routers import helloworld, login, projects, users
-
+from .database import Database
+from .dependencies import db_depend
 
 # initiate app
 app = FastAPI()
