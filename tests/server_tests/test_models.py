@@ -1,6 +1,8 @@
 # global imports
 import sys
 from datetime import datetime, timedelta
+from uuid import UUID
+from bson import ObjectId
 
 # relative imports
 # sys.path.append("../src")
@@ -29,7 +31,7 @@ def test_token_validate() -> None:
     """Test token validation"""
 
     token = Token_DB(
-        user_id="userid",
+        user_id=ObjectId("65c77de92ab5ae955858182c"),
         token="8a488bfe-c67b-5593-a97e-4a80bf081aa4",
         expiration=datetime.now() + timedelta(hours=72),
     )

@@ -1,5 +1,6 @@
 # global imports
 import requests
+from uuid import UUID
 
 # relative imports
 from src.server.models import User, Token, Project, Task
@@ -18,6 +19,18 @@ task3 = None
 
 # mock project
 project = None
+
+
+def test_token():
+    response = requests.get(
+        f"{api}/",
+        headers={
+            "content-type": "application/json",
+            "token-uuid": "12761244-6134-5a0e-9939-d8284e50be2f",
+        },
+    )
+
+    assert response.status_code == 200
 
 
 def test_post_user():
