@@ -1,53 +1,17 @@
 # global imports
 from pymongo import MongoClient
+from uuid import UUID
+from bson import ObjectId
+from typing import Union
 
-
-# def authorize_token(token: Token, auth_level: str | None = "user") -> bool | Token:
-#     """Function which checks if the provided token is valid, and if
-#     the user has the required authorization for the API call
-
-#     Args:
-#         token (Token): token from request header
-#         auth_level (str): authorization level required ("user", "admin", etc.)
-
-#     Returns:
-#         bool: if the token is invalid / the user doesn't have sufficient permissions
-#         Token: if everything is alright
-#     """
-#     # check if token in database
-#     token_data = token.model_dump()
-#     token_data["token"] = str(token_data["token"])
-
-#     query = db.sessions.find_one(token_data)
-
-#     if query is None:
-#         return False
-
-#     # check if the token is not expired
-#     token_db_data = bson2dict(query)
-
-#     # convert whatever the hell mongodb stores (i am already sick of its
-#     # typing bullshit) to a datetime object
-#     token_db_data["expiration"] = datetime.fromisoformat(
-#         token_db_data["expiration"]["$date"]
-#     )
-
-#     token_db = Token_DB(**token_db_data)
-#     if not token_db.check_alive():
-#         return False
-
-#     # check auth level
-#     if token_db.authorization != auth_level:
-#         return False
-
-#     return token_db
+# relative imports
+from .models import Token, Token_DB, User, User_DB
 
 
 DB_HOST = "127.0.0.1"
 DB_PORT = 27017
 
 
-# TODO implement database methods
 class Database:
     """Pymongo database interface class"""
 
@@ -55,19 +19,171 @@ class Database:
         self.client = MongoClient(host=DB_HOST, port=DB_PORT)
         self.db = self.client.tests
 
-    def add(self, object_data: object) -> bool:
-        """Add object to database
+    # USER METHODS
+    def get_user(self, user: str | ObjectId) -> User:
+        """Method that gets user data from database by username or id
+
+        Args:
+            user_id (str | ObjectId): username or user id
+
+        Returns:
+            User: user data
+        """
+
+        if type(user) is str:
+            query = self.db.users.find_one({"username": user})
+        if type(user) is ObjectId:
+            query = self.db.users.find_one({"_id": user})
+
+        if query is None:
+            return query
+        return User(**query)
+
+    def get_user_db(self, username: str | ObjectId) -> User_DB:
+        """Method that returns all user info from database by username or id
+
+        Args:
+            username (str | ObjectId): username or user id
+
+        Returns:
+            User_DB: user data, including hashed password and update statuses
+        """
+
+        if type(username) is str:
+            query = self.db.users.find_one({"username": username})
+        if type(username) is ObjectId:
+            query = self.db.users.find_one({"_id": username})
+
+        if query is None:
+            return query
+
+        return User_DB(**query)
+
+    def get_user_id(self, username: str) -> ObjectId:
+
+        query = self.db.users.find_one({"username": username})
+        if query is None:
+            return query
+        return query["_id"]
+
+    # todo implement this
+    def get_multiple_by_username(self, username: str) -> list[User]:
+        """Method that searches the database for users that
+        somewhat match the username"
+
+        Args:
+            username (str): User username
+
+        Returns:
+            list[User]: list of results
+        """
+
+        raise NotImplementedError
+
+    def post_user(self, user_data: User_DB) -> Union[bool, ObjectId]:
+        """Method that creates a user in the database
+
+        Args:
+            user_data (User_DB): user data with hashed password
+
+        Returns:
+            Union[bool, ObjectId]: return code and the id of the newly inserted user
+        """
+
+        request = self.db.users.insert_one(user_data.model_dump())
+
+        if request.acknowledged == 0:
+            return False, None
+
+        return True, request.inserted_id
+
+    def update_user(
+        self,
+        user_data: User,
+        username: str,
+    ) -> bool:
+        """Method that updates user data
+
+        Args:
+            user_data (User): updated user data
+            username (str): username of user to update
 
         Returns:
             bool: return code
         """
-        raise NotImplementedError
 
-    def get(self, object_id: str) -> object:
-        raise NotImplementedError
+        request = self.db.users.update_one(
+            {"username": username}, {"$set": user_data.model_dump()}
+        )
 
-    def update(self, oject_id: str, object_data: object) -> bool:
-        raise NotImplementedError
+        return request.acknowledged
 
-    def delete(self, object_id: str) -> bool:
-        raise NotImplementedError
+    def delete_user(self, username: str) -> bool:
+        """Delete user from the database
+
+        Args:
+            username (str): username of the user to delete
+
+        Returns:
+            bool: return code
+        """
+        request = self.db.users.delete_one({"username": username})
+
+        return request.acknowledged
+
+    # TOKEN METHODS
+    def get_token(self, token_uuid: UUID) -> Token_DB:
+        """Get token from database via UUID, needed when checking or deleting
+        token
+
+        Args:
+            token_uuid (UUID): token UUID
+
+        Returns:
+            dict: Token_DB data
+        """
+
+        query = self.db.sessions.find_one({"token": str(token_uuid)})
+        if query is None:
+            return query
+        return Token_DB(**query)
+
+    def post_token(self, token: Token, user_id: ObjectId) -> bool:
+        """Create session token, triggered when logging in
+
+        Args:
+            token (Token): token
+            user_id (ObjectId): user's id in the database
+
+        Returns:
+            bool: return code
+        """
+
+        # convert Token to Token_DB
+        token_db = token.convert(user_id)
+
+        # insert Token_DB instance into database
+        request = self.db.sessions.insert_one(token_db.model_dump())
+        return request.acknowledged
+
+    def get_token_by_user(self, user_id: ObjectId) -> Token:
+        query = self.db.sessions.find_one({"user_id": user_id})
+
+        if query is None:
+            return query
+        return Token(**query)
+
+    def delete_token(self, token_uuid: UUID) -> bool:
+        """Method that deletes session token if the user logs in again or if
+        the token is expired
+
+        Args:
+            token_uuid (UUID): session token
+
+        Returns:
+            bool: return code
+        """
+
+        request = self.db.sessions.delete_one({"token": str(token_uuid)})
+
+        return request.acknowledged
