@@ -2,13 +2,23 @@ from __future__ import annotations
 from pydantic import BaseModel
 from uuid import uuid4, uuid5, UUID
 from datetime import datetime, timedelta
+from bson import ObjectId
 
 
 class Token(BaseModel):
     """Session Token dataclass"""
 
+    # CONFIG
+    class Config:
+        """Pydantic Model Config"""
+
+        # to allow ObjectId
+        arbitrary_types_allowed = True
+
+    # ATTRIBUTES
     token: UUID
 
+    # METHODS
     @classmethod
     def generate(cls, username: str) -> Token:
         """Class method for generating a token
@@ -44,11 +54,10 @@ class Token(BaseModel):
 
 
 class Token_DB(Token):
+    """Session token dataclass to store in database"""
 
-    # this is a string here because mongodb can't serialize it properly or
-    # something
-    user_id: UUID
-    token: str
+    user_id: ObjectId
+    token: str  # this is a string for proper storage in DB (pymongo didn't like UUIDs much)
 
     # time when token expires (72 hours from creation)
     expiration: datetime
