@@ -3,7 +3,7 @@ from mongomock import MongoClient
 
 from src.server.main import app
 from src.server.models import User
-from src.server.dependencies import db_depend
+from src.server.dependencies import db_depend, token_auth, admin_auth
 from src.server.database import Database
 
 
@@ -28,15 +28,21 @@ def db_depend_override() -> MockDatabase:
 
 client = TestClient(app)
 
-# override database with a mock
-app.dependency_overrides[db_depend] = db_depend_override
-
 # mock user data for testing
 mock_user = User(username="randomuser", full_name="full name jr.")
 mock_password = "password"
 
 # second mock user for tests that require 2 accounts
 other_user = User(username="otheruser", full_name="another test user")
+
+
+def test_setup() -> None:
+    """Reset fastapi dependencies then override the ones used in this test"""
+
+    app.dependency_overrides = {}
+
+    # override database with a mock
+    app.dependency_overrides[db_depend] = db_depend_override
 
 
 def test_post_user() -> None:
