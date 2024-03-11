@@ -1,124 +1,143 @@
 # global imports
-from fastapi import HTTPException, APIRouter, Body
-from bson import ObjectId
+from fastapi import HTTPException, APIRouter, Body, Depends
 
 # relative imports
-from ..models import User, User_DB
-from ..utils import bson2dict, result_get_id
-from ..database import db
+from ..models import User, User_DB, Token
+from ..database import Database
+
+from ..dependencies import db_depend, token_auth, admin_auth
 
 
 router = APIRouter()
 
 
 @router.post("/user/")
-# def create_user(data: dict[str, User | str]) -> User:
-def create_user(user: User, password: str = Body()) -> User:
-    """Call which creates a user in the database
+def create_user(
+    user: User, password: str = Body(), db: Database = Depends(db_depend)
+) -> Token:
+    """Create user in the database and return a session token for that user
 
     Args:
-        data (dict[User, str]): user submitted data, the dictionary contains the user data, then the hashed password
+        user (User): user data
+        password (str): hashed password
+
 
     Returns:
-        User: user data, now containing the database ID
+        Token: session token for the newly created user
     """
+
     # check if there already is a user with that username
-    # user_data = data["user"].model_dump()
-    # password = data["password"]
     user_data = user.model_dump()
-    if db.users.find_one({"username": user_data["username"]}) != None:
+
+    if db.get_user(user_data["username"]) is not None:
         raise HTTPException(406, "username already taken")
 
-    # create appropriate class for the db then inser it
+    # create appropriate class for the db then insert it
     user_db = User_DB(password=password, **user_data)
-    request = db.users.insert_one(user_db.model_dump())
-    if request.acknowledged == True:
-        # convert _id from bson to string
-        id = result_get_id(request)
-        user_data["id"] = id  # overwrite user_data value for id
-        user = User(**user_data)
-        return user
-    else:
-        raise HTTPException(500, "could not create user")
+    rc, user_id = db.post_user(user_db)
+
+    if rc is False:
+        raise HTTPException(500, "Could not create user")
+
+    # create session token and return it
+    token = Token.generate(user_data["username"])
+
+    if db.post_token(token, user_id) is False:
+        raise HTTPException(500, "Could not create session token")
+
+    return token
 
 
 @router.delete("/user/")
-def delete_user(data: dict[str, str]) -> dict:
-    """Call which deletes a user from the database. Requires password for confirmation
+def delete_user(
+    user: User = Depends(token_auth),
+    username: str = Body(),
+    password: str = Body(),
+    db: Database = Depends(db_depend),
+    admin: bool = Depends(admin_auth),
+) -> dict:
+    """Delete user from the database. Requires password for confirmation
 
     Args:
-        data (dict[str, str]): dictionary containing user id in the database and hashed password
+        username (str): username of the account to be deleted
+        password (str): password of the account to be deleted
+
 
     Returns:
-        dict: server response
+        dict: API response
     """
-    # ObjectId validation
-    try:
-        id = ObjectId(data["id"])
-    except:
-        raise HTTPException(406, "invalid id")
 
-    query = db.users.find_one({"_id": id})
-    if query == None:
+    # query = db.get_user_by_username(username)
+    user_db = db.get_user_db(username)
+    if user_db is None:
         raise HTTPException(404, "could not find user")
 
-    query_data = bson2dict(query)
-    password = data["password"]
+    if user.username != user_db.username and admin is False:
+        raise HTTPException(401, "You cannot delete someone else's account")
 
-    if query_data["password"] != password:
-        raise HTTPException(406, "incorrect password")
+    if password != user_db.password:
+        raise HTTPException(401, "Incorrect password")
 
-    request = db.users.delete_one(query)
-    if request.acknowledged == True:
-        raise HTTPException(200, "user deleted successfully")
-    else:
+    rc = db.delete_user(username)
+
+    if rc is False:
         raise HTTPException(500, "could not delete user from database")
 
+    return {"response": "User deleted successfully"}
 
-@router.get("/user/")
-def get_user(username: str) -> User:
-    """Call which returns user data
+
+@router.get("/user/{username}")
+def get_user(
+    username: str, user: User = Depends(token_auth), db: Database = Depends(db_depend)
+) -> User:
+    """Call that returns user data by username
 
     Args:
-        data (dict[str, str]): dictionary containing the username of the user to retrieve data of
+        username (str): exact username
 
     Returns:
-        User: data retrieved from database
+        User: User data
     """
-    data = username
-    request = db.users.find_one({"username": data})
-    if request == None:
-        raise HTTPException(404, "could not find user")
-    user_data = bson2dict(request)
-    try:
-        user = User(
-            # **user_data
-            **request
-        )  # if this fails, it means corrupted data got in the database somehow
-    except:
-        raise HTTPException(500, "corrupted user data")
-    return user
+
+    # query = db.get_user_by_username(username)
+    query = db.get_user(username)
+
+    if query is None:
+        raise HTTPException(404, "User not found")
+
+    return query
 
 
 @router.put("/user/")
-def update_user(data: User) -> User:
+def update_user(
+    user_data: User,
+    user: User = Depends(token_auth),
+    username: str = Body(),
+    db: Database = Depends(db_depend),
+    admin: bool = Depends(admin_auth),
+) -> dict:
+    """Modify user data
 
-    # pull the user from the database to check if the username is different or not
-    user_data = data.model_dump()
-    user_id = ObjectId(user_data["id"])
-    query = db.users.find_one({"_id": user_id})
+    Args:
+        user_data (User): updated user data
+        username (str): username of account to be modified
 
-    if query is None:
-        raise HTTPException(404, "could not find user")
+    Returns:
+        bool: API response
+    """
 
-    user_db_data = bson2dict(query)
-    if user_data["username"] != user_db_data["username"]:
-        raise HTTPException(406, "you cannot change your username")
+    if username != user.username and admin is False:
+        raise HTTPException(400, "You cannot modify another user's account")
 
-    # remove id attribute do avoid conflict with db class
-    user_data.pop("id")
-    update_data = {"$set": user_data}
-    if db.users.update_one({"_id": user_id}, update_data).acknowledged == True:
-        return User(**bson2dict(db.users.find_one({"_id": user_id})))
-    else:
-        raise HTTPException(500, "could not update user data")
+    # the username is unique, check if the user tries to change it
+    if user_data.username != username:
+        raise HTTPException(401, "You cannot change the username")
+
+    # check if the user is in the database (useful for when an admin tries to change someone's data)
+    if db.get_user(username) is None:
+        raise HTTPException(404, "User not found")
+
+    if db.update_user(user_data, username) is False:
+        raise HTTPException(500, "Could not update user")
+
+    return {"response": "User updated successfully"}
