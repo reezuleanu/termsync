@@ -17,5 +17,5 @@ def db_depend() -> Database:
     """
 
     if not isinstance(db, Database):
-        raise HTTPException(500, "database not available")
+        raise HTTPException(503, "Database not available")
     return db
