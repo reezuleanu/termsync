@@ -271,6 +271,31 @@ def test_deleting_bad_user() -> None:
     assert response.json()["detail"] == "Incorrect password"
 
 
+def test_make_admin() -> None:
+    """Test making a user an admin (must be an admin yourself)"""
+
+    # make self admin
+    db.db.users.update_one(
+        {"username": mock_user.username}, {"$set": {"power": "admin"}}
+    )
+
+    # make other user admin
+    response = client.post(
+        f"/admin/{other_user.username}",
+        headers={"content-type": "application/json", "token-uuid": token},
+    )
+
+    assert response.status_code == 200
+    assert response.json()["detail"] == "User promoted to admin successfully"
+
+    # double check user is now admin
+    response = client.get(
+        "/", headers={"content-type": "application/json", "token-uuid": other_token}
+    )
+
+    assert response.json()["admin"] is True
+
+
 def test_delete_user() -> None:
     """Test deleting user"""
 
@@ -285,7 +310,6 @@ def test_delete_user() -> None:
     assert response.json()["detail"] == "User deleted successfully"
 
     # check the user is gone from the database
-
     response = client.get(
         f"/users/{mock_user.username}",
         headers={"content-type": "application/json", "token-uuid": other_token},
