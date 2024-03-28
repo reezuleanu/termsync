@@ -2,10 +2,10 @@
 from pymongo import MongoClient
 from uuid import UUID
 from bson import ObjectId
-from typing import Union
+from typing import Union, List
 
 # relative imports
-from .models import Token, Token_DB, User, User_DB
+from .models import Token, Token_DB, User, User_DB, Project
 
 
 DB_HOST = "127.0.0.1"
@@ -80,7 +80,7 @@ class Database:
 
         raise NotImplementedError
 
-    def post_user(self, user_data: User_DB) -> Union[bool, ObjectId]:
+    def post_user(self, user_data: User_DB) -> list[bool, ObjectId]:
         """Method that creates a user in the database
 
         Args:
@@ -92,7 +92,7 @@ class Database:
 
         request = self.db.users.insert_one(user_data.model_dump())
 
-        if request.acknowledged == 0:
+        if request.acknowledged is False:
             return False, None
 
         return True, request.inserted_id
@@ -185,5 +185,33 @@ class Database:
         """
 
         request = self.db.sessions.delete_one({"token": str(token_uuid)})
+
+        return request.acknowledged
+
+    # PROJECT METHODS
+    def add_project(self, project: Project) -> bool:
+
+        request = self.db.projects.insert_one(project.model_dump())
+
+        return request.acknowledged
+
+    def get_project(self, project_name: str) -> Project:
+
+        request = self.db.projects.find_one({"name": project_name})
+        if request is None:
+            return request
+
+        return Project(**request)
+
+    def update_project(self, project_name: str, updated_project: Project) -> bool:
+
+        request = self.db.projects.update_one(
+            {"name": project_name}, {"$set": updated_project.model_dump()}
+        )
+        return request.acknowledged
+
+    def delete_project(self, project_name: str) -> bool:
+
+        request = self.db.projects.delete_one({"name": project_name})
 
         return request.acknowledged
