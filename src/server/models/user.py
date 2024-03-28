@@ -1,12 +1,17 @@
 from __future__ import annotations
 from pydantic import BaseModel
+from bson import ObjectId
+from typing import List
 
 
 class User(BaseModel):
     """Dataclass containing user data. (DB hold a subclass of this with the password as well)"""
 
+    model_config = {"arbitrary_types_allowed": True}
+
     username: str
     full_name: str
+    profile_picture: str | None = None
 
     # the username will be unique across all users
     def __eq__(self, other: User) -> bool:
@@ -20,6 +25,6 @@ class User_DB(User):
 
     power: str = "user"  # user administrator priviledges (user/admin)
 
-    # todo redo updating system
-    # attribute telling the client should refresh projects
-    update: bool = False
+    # attribute telling the client if it should call GET for the IDs in the list
+    update_projects: List[ObjectId] = []
+    update_messages: List[ObjectId] = []
