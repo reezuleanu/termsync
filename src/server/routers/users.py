@@ -141,3 +141,32 @@ def update_user(
         raise HTTPException(500, "Could not update user")
 
     return {"detail": "User updated successfully"}
+
+
+@router.post("/admin/{username}")
+def make_admin(
+    username: str,
+    user: User = Depends(token_auth),
+    db: Database = Depends(db_depend),
+    admin: bool = Depends(admin_auth),
+) -> dict:
+    """Make a user an admin (must be an admin yourself)
+
+    Args:
+        username (str): username of user to be made admin
+
+    Returns:
+        dict: API response
+    """
+
+    if admin is False:
+        raise HTTPException(403, "You must be an admin to use this command")
+
+    # check if user exists
+    if db.get_user(username) is None:
+        raise HTTPException(404, "User does not exist")
+
+    if db.make_admin(username) is False:
+        raise HTTPException(500, "Could not make user an admin")
+
+    return {"detail": "User promoted to admin successfully"}

@@ -131,6 +131,22 @@ class Database:
 
         return request.acknowledged
 
+    def make_admin(self, username: str) -> bool:
+        """Make a user an admin
+
+        Args:
+            username (str): username of user to be made admin
+
+        Returns:
+            bool: return code
+        """
+
+        request = self.db.users.update_one(
+            {"username": username}, {"$set": {"power": "admin"}}
+        )
+
+        return request.acknowledged
+
     # TOKEN METHODS
     def get_token(self, token_uuid: UUID) -> Token_DB:
         """Get token from database via UUID, needed when checking or deleting
