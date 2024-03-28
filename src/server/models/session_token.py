@@ -8,12 +8,8 @@ from bson import ObjectId
 class Token(BaseModel):
     """Session Token dataclass"""
 
-    # CONFIG
-    class Config:
-        """Pydantic Model Config"""
-
-        # to allow ObjectId
-        arbitrary_types_allowed = True
+    # to allow ObjectId
+    model_config = {"arbitrary_types_allowed": True}
 
     # ATTRIBUTES
     token: UUID

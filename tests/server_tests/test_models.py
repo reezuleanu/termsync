@@ -4,7 +4,6 @@ from uuid import UUID
 from bson import ObjectId
 
 # relative imports
-# sys.path.append("../src")
 from src.server.models import (
     Token,
     Token_DB,
@@ -17,8 +16,6 @@ from src.server.models import (
 
 
 ### TOKENS ###
-
-
 def test_token_generate() -> None:
     """Test token generation"""
 
