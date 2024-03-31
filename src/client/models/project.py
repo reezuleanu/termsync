@@ -4,7 +4,7 @@ from bson import ObjectId
 
 from .task import Task, Milestone_Task, Discrete_Task
 from .user import User
-from ..utils import replace
+from utils import replace
 
 # ! Circular import, used only for type hinting
 # from ..database import Database

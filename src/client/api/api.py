@@ -1,5 +1,6 @@
 from uuid import UUID
 import httpx
+from models import User
 
 
 class API:
@@ -22,6 +23,27 @@ class API:
             return True
         else:
             return False
+
+    def register(self, user: User, password: str) -> UUID:
+        """Method that registers a new user
+
+        Args:
+            user (User): user data
+            password (str): hashed password
+
+        Returns:
+            UUID: token uuid
+        """
+
+        response = self.client.post(
+            f"{self.server}/users/",
+            json={"user": user.model_dump(), "password": password},
+        )
+
+        if response.status_code == 200:
+            return response.json()["token"]
+        else:
+            return None
 
     def login(self, username: str, password: str) -> UUID:
         """Method that logs user in

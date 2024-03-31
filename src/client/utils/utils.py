@@ -2,9 +2,10 @@ from bson import json_util, BSON
 import json
 import sys
 from uuid import UUID
+from os import system
 
 # sys.path.append("../")
-from ..models import Token
+# from ..models import Token
 
 # apparently this doesn't work
 # from pymongo import InsertOneResult
@@ -42,3 +43,9 @@ def replace(list: list, value: any, replacement: any) -> None:
 
     index = list.index(value)
     list[index] = replacement
+
+
+def clear_screen() -> None:
+    """System call to clear screen"""
+
+    system("clear")

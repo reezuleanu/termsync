@@ -3,6 +3,7 @@ from ui import display_logo
 from api import API
 import json
 import getpass
+from models import User
 
 api = API(host="127.0.0.1", port=2727)
 
@@ -12,12 +13,15 @@ def startup(console: Console) -> None:
 
     # display logo
     display_logo(console)
-
-    with open("data/session.json", "r") as fp:
-        try:
-            token = json.load(fp)["token-uuid"]
-        except json.decoder.JSONDecodeError:
-            token = None
+    console.print("\n\n")  # add a bit of space
+    try:
+        with open("data/session.json", "r") as fp:
+            try:
+                token = json.load(fp)["token-uuid"]
+            except json.decoder.JSONDecodeError:
+                token = None
+    except FileNotFoundError:
+        token = None
 
     if token is None:
         console.log("Please login")
@@ -30,6 +34,29 @@ def startup(console: Console) -> None:
             login()
         if rc is True:
             console.log("You are logged in")
+
+
+def register(console: Console) -> None:
+    """Register new user"""
+
+    # gather data
+    username = str(input("Enter username: "))
+    full_name = str(input("Enter full name: "))
+    password = str(getpass.getpass("Enter password: "))
+
+    new_user = User(username=username, full_name=full_name)
+
+    # api call and token serialization
+    token = api.register(new_user, password)
+
+    if token is None:
+        console.log("Could not create new user")
+        return
+
+    with open("data/session.json", "w") as fp:
+        json.dump({"token-uuid": token}, fp)
+
+    console.log("User created successfully")
 
 
 def login(console: Console) -> None:

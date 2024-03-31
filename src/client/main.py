@@ -3,7 +3,7 @@ from rich.panel import Panel
 from rich.console import Console
 from rich.text import Text
 from ui import console, display_logo
-from os import system
+from utils import clear_screen
 from rich.layout import Layout
 from functions import startup
 
@@ -32,11 +32,10 @@ if __name__ == "__main__":
         # layout["center"].update(panel_center)
         # layout["right"].update(Panel.fit(logo, border_style="red", style="bold red"))
         # console.print(layout)
-        system("clear")
+        clear_screen()
         startup(console)
 
         while True:
             continue
     except KeyboardInterrupt:
-        system("clear")
-        print("ok mam kalmat\n\n")
+        clear_screen()
