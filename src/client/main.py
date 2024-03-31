@@ -5,39 +5,15 @@ from rich.text import Text
 from ui import console, display_logo
 from os import system
 from rich.layout import Layout
-
-
-logo = Text(
-    """
- ░▒▓███████▓▒░▒▓█▓▒░░▒▓█▓▒░░▒▓██████▓▒░░▒▓█▓▒░      ░▒▓███████▓▒░░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░       ░▒▓██████▓▒░  
-░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░ 
-░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░ 
- ░▒▓██████▓▒░░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒▒▓███▓▒░▒▓█▓▒░      ░▒▓███████▓▒░░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░      ░▒▓████████▓▒░ 
-       ░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░ 
-       ░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░ 
-░▒▓███████▓▒░ ░▒▓██████▓▒░ ░▒▓██████▓▒░░▒▓█▓▒░      ░▒▓█▓▒░       ░▒▓██████▓▒░░▒▓████████▓▒░▒▓█▓▒░░▒▓█▓▒░                                                                                                        
-""",
-    justify="left",
-)
+from functions import startup
 
 
 if __name__ == "__main__":
     try:
-        # sugi pula print
-        console.print(
-            Panel.fit(
-                logo,
-                border_style="red",
-            ),
-            style="danger",
-            justify="center",
-        )
-        system("clear")
-
         # logo print
-        display_logo(console)
-        display_logo(console)
-        display_logo(console)
+        # display_logo(console)
+        # display_logo(console)
+        # display_logo(console)
 
         # ! Layout example
         # layout = Layout()
@@ -56,6 +32,8 @@ if __name__ == "__main__":
         # layout["center"].update(panel_center)
         # layout["right"].update(Panel.fit(logo, border_style="red", style="bold red"))
         # console.print(layout)
+        system("clear")
+        startup(console)
 
         while True:
             continue
