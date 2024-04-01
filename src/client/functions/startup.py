@@ -1,16 +1,17 @@
 from rich.console import Console
 from ui import display_logo
-from api import API
 import json
-import getpass
-from models import User
 from .prompt import prompt
-
-api = API(host="127.0.0.1", port=2727)
+from time import sleep
+from api import api
 
 
 def startup(console: Console) -> None:
-    """App startup function"""
+    """App startup function. It displays logo, checks token, then passes control to the prompt function
+
+    Args:
+        console (Console): Rich console
+    """
 
     # display logo
     display_logo(console)
@@ -27,66 +28,44 @@ def startup(console: Console) -> None:
         token = None
 
     if token is None:
-        console.log("Please login")
-        login(console)
+        console.print(
+            "You are not logged in. To use the app, please use 'login' to login with an existing account, or 'register' to create a new account\n",
+            style="warning",
+        )
+        prompt(console, None)
     else:
         # check if the token is still valid
-        rc = api.check_token(token)
+        rc = None
+        i = 0
+        while rc is None and i < 5:
+            try:
+                rc = api.check_token(token)
+            except:
+                i = i + 1
+                console.print(
+                    "Could not connect to server\n",
+                    style="danger",
+                )
+                console.print("Retrying...\n")
+                sleep(5)
 
+        # if failed to connect to server and check token
+        if rc is None:
+            console.print(
+                "Could not connect to the server, please try again later\n",
+                style="danger",
+            )
+            prompt(console, None)
+
+        # if token is expired
         if rc is False:
-            console.log("Session has expired, please login again")
-            login(console)
+            console.print(
+                "Session has expired, please login again to use the app\n",
+                style="warning",
+            )
+            prompt(console, None)
+
+        # if token is still valid
         if rc is True:
-            console.log("You are logged in")
+            console.print("You are logged in\n", style="success")
             prompt(console, api.get_username(token))
-
-
-def register(console: Console) -> None:
-    """Register new user"""
-
-    # gather data
-    username = str(input("Enter username: "))
-    full_name = str(input("Enter full name: "))
-    password = str(getpass.getpass("Enter password: "))
-
-    new_user = User(username=username, full_name=full_name)
-
-    # api call and token serialization
-    token = api.register(new_user, password)
-
-    if token is None:
-        console.log("Could not create new user")
-        return
-
-    with open("data/session.json", "w") as fp:
-        json.dump({"token-uuid": token}, fp)
-
-    console.log("User created successfully")
-    prompt(console, api.get_username(token))
-
-
-def login(console: Console) -> None:
-    """Login functionality
-
-    Args:
-        console (Console): rich console
-    """
-
-    # input
-    username = str(input("Username: "))
-    password = str(getpass.getpass("Password: "))
-
-    # login call
-    token = api.login(username, password)
-
-    # if call is not successfull
-    if token is None:
-        console.log("Wrong username or password")
-        return
-
-    # save token
-    with open("data/session.json", "w") as fp:
-        json.dump({"token-uuid": token}, fp)
-
-    console.log("Login successful")
-    prompt(console, api.get_username(token))
