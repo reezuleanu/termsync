@@ -1,6 +1,7 @@
 from uuid import UUID
 import httpx
 from models import User
+import hashlib
 
 
 class API:
@@ -10,13 +11,13 @@ class API:
         self.host = host
         self.port = port
         self.server = f"http://{host}:{port}"
-        self.client = httpx.Client()
+        self.client = httpx.Client(base_url=self.server)
 
     def check_token(self, token: UUID) -> bool:
         """Method that checks if the token is still valid"""
 
         response = self.client.get(
-            f"{self.server}/",
+            "/",
             headers={"content-type": "application/json", "token-uuid": token},
         )
         if response.status_code == 200:
@@ -35,8 +36,12 @@ class API:
             UUID: token uuid
         """
 
+        # hash password
+        password = password.encode("utf-8")
+        password = hashlib.sha256(password).hexdigest()
+
         response = self.client.post(
-            f"{self.server}/users/",
+            "/users/",
             json={"user": user.model_dump(), "password": password},
         )
 
@@ -56,8 +61,12 @@ class API:
             UUID: token uuid
         """
 
+        # hash password
+        password = password.encode("utf-8")
+        password = hashlib.sha256(password).hexdigest()
+
         response = self.client.post(
-            f"{self.server}/login/", json={"username": username, "password": password}
+            "/login/", json={"username": username, "password": password}
         )
 
         if response.status_code == 200:

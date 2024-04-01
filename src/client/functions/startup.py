@@ -4,6 +4,7 @@ from api import API
 import json
 import getpass
 from models import User
+import hashlib
 
 api = API(host="127.0.0.1", port=2727)
 
@@ -31,7 +32,7 @@ def startup(console: Console) -> None:
 
         if rc is False:
             console.log("Session has expired, please login again")
-            login()
+            login(console)
         if rc is True:
             console.log("You are logged in")
 
