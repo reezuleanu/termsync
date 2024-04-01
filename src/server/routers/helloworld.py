@@ -17,4 +17,8 @@ def hello(user: User = Depends(token_auth), admin: bool = Depends(admin_auth)) -
         dict: API response
     """
 
-    return {"response": f"hello there {user.username}!", "admin": admin}
+    return {
+        "response": f"hello there {user.username}!",
+        "username": user.username,
+        "admin": admin,
+    }

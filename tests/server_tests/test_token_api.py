@@ -39,4 +39,5 @@ def test_token_auth() -> None:
 
     assert response.status_code == 200
     assert response.json()["response"] == "hello there randomuser!"
+    assert response.json()["username"] == "randomuser"
     assert response.json()["admin"] is False
