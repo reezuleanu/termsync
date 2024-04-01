@@ -1,5 +1,5 @@
 from rich.console import Console
 from rich.theme import Theme
 
-theme = Theme({"danger": "bold red"})
+theme = Theme({"danger": "bold red", "warning": "bold yellow", "success": "bold green"})
 console = Console(theme=theme)
