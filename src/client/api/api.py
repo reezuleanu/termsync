@@ -3,6 +3,8 @@ import httpx
 from models import User
 import hashlib
 
+# import yaml
+
 
 class API:
     """API interface"""
@@ -85,3 +87,11 @@ class API:
             return response.json()["token"]
         else:
             return None
+
+
+# with open("data/settings.yaml", "r") as fp:
+#     host = yaml.load(fp, )
+
+
+# object used throughout the app
+api = API("127.0.0.1", 2727)
