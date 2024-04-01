@@ -2,3 +2,4 @@
 **/.pytest_cache
 *.DS_Store
 .$server-models.drawio.bkp
+src/client/data/session.json
