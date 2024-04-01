@@ -13,6 +13,18 @@ class API:
         self.server = f"http://{host}:{port}"
         self.client = httpx.Client(base_url=self.server)
 
+    def get_username(self, token: UUID) -> str:
+        """Get user's username to display in prompt"""
+
+        response = self.client.get(
+            "/",
+            headers={"content-type": "application/json", "token-uuid": token},
+        )
+
+        if response.status_code != 200:
+            return None
+        return response.json()["username"]
+
     def check_token(self, token: UUID) -> bool:
         """Method that checks if the token is still valid"""
 

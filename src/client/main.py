@@ -5,7 +5,7 @@ from rich.text import Text
 from ui import console, display_logo
 from utils import clear_screen
 from rich.layout import Layout
-from functions import startup
+from functions import startup, prompt
 
 
 if __name__ == "__main__":

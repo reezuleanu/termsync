@@ -4,7 +4,7 @@ from api import API
 import json
 import getpass
 from models import User
-import hashlib
+from .prompt import prompt
 
 api = API(host="127.0.0.1", port=2727)
 
@@ -15,6 +15,8 @@ def startup(console: Console) -> None:
     # display logo
     display_logo(console)
     console.print("\n\n")  # add a bit of space
+
+    # get token from session.json
     try:
         with open("data/session.json", "r") as fp:
             try:
@@ -28,6 +30,7 @@ def startup(console: Console) -> None:
         console.log("Please login")
         login(console)
     else:
+        # check if the token is still valid
         rc = api.check_token(token)
 
         if rc is False:
@@ -35,6 +38,7 @@ def startup(console: Console) -> None:
             login(console)
         if rc is True:
             console.log("You are logged in")
+            prompt(console, api.get_username(token))
 
 
 def register(console: Console) -> None:
@@ -58,6 +62,7 @@ def register(console: Console) -> None:
         json.dump({"token-uuid": token}, fp)
 
     console.log("User created successfully")
+    prompt(console, api.get_username(token))
 
 
 def login(console: Console) -> None:
@@ -84,3 +89,4 @@ def login(console: Console) -> None:
         json.dump({"token-uuid": token}, fp)
 
     console.log("Login successful")
+    prompt(console, api.get_username(token))
