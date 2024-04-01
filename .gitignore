@@ -3,3 +3,4 @@
 *.DS_Store
 .$server-models.drawio.bkp
 src/client/data/session.json
+src/client/data/session.json
