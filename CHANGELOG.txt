@@ -1,3 +1,4 @@
 Version 0.1.0:
     - added changelog file
     - initial API release
+    - initial client release
