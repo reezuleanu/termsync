@@ -127,11 +127,11 @@ def update_user(
     """
 
     if username != user.username and admin is False:
-        raise HTTPException(400, "You cannot modify another user's account")
+        raise HTTPException(401, "You cannot modify another user's account")
 
     # the username is unique, check if the user tries to change it
     if user_data.username != username:
-        raise HTTPException(401, "You cannot change the username")
+        raise HTTPException(400, "You cannot change the username")
 
     # check if the user is in the database (useful for when an admin tries to change someone's data)
     if db.get_user(username) is None:
@@ -160,7 +160,7 @@ def make_admin(
     """
 
     if admin is False:
-        raise HTTPException(403, "You must be an admin to use this command")
+        raise HTTPException(401, "You must be an admin to use this command")
 
     # check if user exists
     if db.get_user(username) is None:
