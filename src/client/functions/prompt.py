@@ -2,9 +2,17 @@ from rich.console import Console
 from rich.text import Text
 import httpx
 import time
-from .user_functions import login, register, test
+from .user_functions import (
+    login,
+    register,
+    test,
+    delete_account,
+    edit_account,
+    get_user,
+    make_admin,
+)
 from .help import help
-from utils import clear_screen
+from utils import clear_screen, get_username, NotLoggedIn
 
 # available commands
 commands = {
@@ -13,6 +21,10 @@ commands = {
     "clear": clear_screen,
     "test": test,
     "help": help,
+    "account_delete": delete_account,
+    "account_edit": edit_account,
+    "user": get_user,
+    "op": make_admin,
 }
 
 
@@ -30,9 +42,8 @@ class Prompt:
 
         while True:
 
-            self.parent.console.print(
-                f"[{time.strftime('%H:%M:%S', time.localtime())}]", end=""
-            )
+            timestamp = time.strftime("%H:%M:%S", time.localtime())
+            self.parent.console.print(f"[{timestamp}]", end="")
             command = input(f"[{username}] >> ")
             self.parent.console.print()
 
@@ -42,12 +53,17 @@ class Prompt:
             # apply command with arguments
             if command[0] in commands:
                 try:
-                    if command[0] == "login" or command[0] == "register":
-                        username = commands[command[0]](*command[1::])
-                        self.run(username)
-                    else:
-                        commands[command[0]](*command[1::])
-                        self.run(username)
+                    # if command[0] == "login" or command[0] == "register":
+                    #     username = commands[command[0]](*command[1::])
+                    #     self.run(username)
+                    # else:
+                    #     commands[command[0]](*command[1::])
+                    #     self.run(username)
+                    commands[command[0]](*command[1::])
+                    self.run(get_username())
+
+                except NotLoggedIn:
+                    self.parent.startup()
 
                 except httpx.ConnectError:
                     self.parent.console.print(
@@ -63,15 +79,15 @@ class Prompt:
                 print()
             elif command[0] == "exit":
                 raise KeyboardInterrupt
+            elif command[0] == "restart":
+                self.parent.startup()
 
-            # TODO figure out how to break out of prompt loop and restart startup
             elif command[0] == "disconnect":
                 with open("data/session.json", "w") as fp:
                     fp.write("")
                 self.parent.console.print(
                     "You have disconnected successfully\n", style="success"
                 )
-                # self.run(None)
-                self.parent.startup()
+                self.run(None)
             else:
                 self.parent.console.print("Bad command\n", style="danger")

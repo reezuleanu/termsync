@@ -8,17 +8,15 @@ from rich.layout import Layout
 from ui import console
 from models import User
 from api import API, api
+from utils import get_token, NotLoggedIn, NotAdmin
 
 
-def register(*args, console: Console = console, api: API = api) -> str:
+def register(*args, console: Console = console, api: API = api) -> None:
     """Create new account functionality
 
     Args:
         console (Console, optional): Rich console. Defaults to console.
         api (API, optional): API interface. Defaults to api.
-
-    Returns:
-        str: username
     """
 
     # gather data
@@ -36,22 +34,20 @@ def register(*args, console: Console = console, api: API = api) -> str:
         return
 
     with open("data/session.json", "w") as fp:
-        json.dump({"token-uuid": token}, fp)
+        json.dump({"token-uuid": token, "username": username}, fp)
 
     console.print("\nUser created successfully\n", style="success")
-    return api.get_username(token)
 
 
-def login(username: str = None, console: Console = console, api: API = api) -> str:
+def login(
+    username: str | None = None, console: Console = console, api: API = api
+) -> None:
     """Login functionality
 
     Args:
         username (str, optional): If username is provided with the command, the user will be asked only for the password. Defaults to None.
         console (Console, optional): Rich console. Defaults to console.
         api (API, optional): API interface. Defaults to api.
-
-    Returns:
-        str: username
     """
 
     # input
@@ -70,26 +66,136 @@ def login(username: str = None, console: Console = console, api: API = api) -> s
 
     # save token
     with open("data/session.json", "w") as fp:
-        json.dump({"token-uuid": token}, fp)
+        json.dump({"token-uuid": token, "username": username}, fp)
 
     console.print("\nLogin successful\n", style="success")
-    return api.get_username(token)
 
 
-def delete_account(username: str, hashed_password: str) -> int:
-    raise NotImplementedError
+def delete_account(
+    username: str | None = None, console: Console = console, api: API = api
+) -> None:
+    """Delete account. Upon deletion, app exits
+
+    Args:
+        username (str | None, optional): username of account to delete. If provided, it won't ask you for the username again. Defaults to None.
+        console (Console, optional): Rich console. Defaults to console.
+        api (API, optional): API interface. Defaults to api.
+
+    Raises:
+        NotLoggedIn: if not logged in
+    """
+
+    # check token
+    token = get_token()
+    if token is None or api.check_token(token) is False:
+        raise NotLoggedIn
+
+    # input
+    if username is None:
+        username = str(input("Username: "))
+
+    password = str(getpass.getpass("\nPassword: "))
+
+    # delete account api call
+    try:
+        rc = api.delete_user(token, username, password)
+    except NotAdmin:
+        console.print("\nYou cannot delete someone else's account\n", style="danger")
+        return
+
+    if rc == 1:
+        console.print("\nCould not delete account\n", style="danger")
+        return
+
+    console.print("\nAccount deleted sucessfully\n", style="success")
+    console.print("Press any key to exit\n")
+    input()
+    raise KeyboardInterrupt
 
 
-def edit_account() -> int:
-    raise NotImplementedError
+def edit_account(
+    username: str | None = None, console: Console = console, api: API = api
+) -> None:
+
+    # check token
+    token = get_token()
+    if token is None or api.check_token(token) is False:
+        raise NotLoggedIn
+
+    if username is None:
+        username = api.get_username(token)
+
+    # get latest data from api
+    user = api.get_user(token, username)
+    if user is None:
+        console.print("\nUser does not exist\n", style="danger")
+        return
+
+    # get input
+    new_full_name = str(input(f"Full name[{user.full_name}]: "))
+    if new_full_name == "":
+        console.print("\nNothing was changed\n")
+        return
+
+    # api call
+    user.full_name = new_full_name
+    try:
+        rc = api.edit_user(token, user)
+    except NotAdmin:
+        console.print("\nYou cannot edit someone else's account\n", style="danger")
+        return
+
+    if rc == 1:
+        console.print("\nCould not edit user\n", style="danger")
+        return
+
+    console.print("\nUser edited successfully\n", style="success")
 
 
-def get_user() -> User:
-    raise NotImplementedError
+def get_user(
+    username: str | None = None, console: Console = console, api: API = api
+) -> None:
+
+    # check token
+    token = get_token()
+    if token is None or api.check_token(token) is False:
+        raise NotLoggedIn
+
+    if username is None:
+        username = api.get_username(token)
+
+    user = api.get_user(token, username)
+
+    if user is None:
+        console.print("\nUser not found\n", style="danger")
+        return
+
+    # todo implement print user data function
+    console.print()
+    console.print(user.model_dump())
+    console.print()
 
 
-def make_admin() -> int:
-    raise NotImplementedError
+def make_admin(username: str, console: Console = console, api: API = api) -> int:
+
+    # check token
+    token = get_token()
+    if token is None or api.check_token(token) is False:
+        raise NotLoggedIn
+
+    try:
+        rc = api.make_admin(token, username)
+    except NotAdmin:
+        console.print("\nYou have to be an admin to use this command\n", style="danger")
+        return
+
+    if rc == 1:
+        console.print("\nCould not promote user\n", style="danger")
+        return
+    if rc == 2:
+        console.print("\nUser not found\n", style="warning")
+        return
+    console.print("\nUser promoted successfully\n", style="success")
 
 
 def test(console: Console = console) -> None:

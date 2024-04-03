@@ -3,6 +3,8 @@ import httpx
 from models import User
 import hashlib
 
+from utils import NotAdmin
+
 # import yaml
 
 
@@ -38,6 +40,17 @@ class API:
             return True
         else:
             return False
+
+    def check_admin(self, token: UUID) -> bool:
+
+        response = self.client.get(
+            "/",
+            headers={"content-type": "application/json", "token-uuid": token},
+        )
+
+        if response.status_code != 200:
+            return None
+        return response.json()["admin"]
 
     def register(self, user: User, password: str) -> UUID:
         """Method that registers a new user
@@ -87,6 +100,65 @@ class API:
             return response.json()["token"]
         else:
             return None
+
+    def get_user(self, token: str, username: str) -> User:
+
+        response = self.client.get(
+            f"/users/{username}",
+            headers={"content-type": "application/json", "token-uuid": token},
+        )
+
+        if response.status_code == 200:
+            return User(**response.json())
+        else:
+            return None
+
+    def delete_user(self, token: str, username: str, password: str) -> int:
+
+        # hash password
+        password = password.encode("utf-8")
+        password = hashlib.sha256(password).hexdigest()
+
+        response = self.client.request(
+            "DELETE",
+            f"/users/{username}",
+            headers={"content-type": "application/json", "token-uuid": token},
+            json=password,
+        )
+        if response.status_code == 200:
+            return 0
+        elif response.status_code == 401:
+            raise NotAdmin
+        else:
+            return 1
+
+    def edit_user(self, token: str, user_data: User) -> int:
+
+        response = self.client.put(
+            f"/users/{user_data.username}",
+            headers={"content-type": "application/json", "token-uuid": token},
+            json=user_data.model_dump(),
+        )
+
+        if response.status_code == 200:
+            return 0
+        elif response.status_code == 401:
+            raise NotAdmin
+        else:
+            return 1
+
+    def make_admin(self, token: str, username: str) -> int:
+
+        response = self.client.post(f"/admin/{username}", headers={"token-uuid": token})
+
+        if response.status_code == 200:
+            return 0
+        elif response.status_code == 401:
+            raise NotAdmin
+        elif response.status_code == 404:
+            return 2
+        else:
+            return 1
 
 
 # with open("data/settings.yaml", "r") as fp:
