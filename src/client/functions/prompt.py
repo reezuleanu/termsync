@@ -16,51 +16,62 @@ commands = {
 }
 
 
-def prompt(console: Console, username: str) -> None:
-    """Function that takes user commands (with arguments) and executes them
+class Prompt:
+    def __init__(self, parent) -> None:
+        self.parent = parent
 
-    Args:
-        console (Console): Rich console
-        username (str): user's username (displayed in the prompt)
-    """
+    def run(self, username: str) -> None:
+        """Function that takes user commands (with arguments) and executes them
 
-    while True:
+        Args:
+            console (Console): Rich console
+            username (str): user's username (displayed in the prompt)
+        """
 
-        console.print(f"[{time.strftime('%H:%M:%S', time.localtime())}]", end="")
-        command = input(f"[{username}] >> ")
-        console.print()
+        while True:
 
-        # split command by spaces
-        command = command.split(" ")
+            self.parent.console.print(
+                f"[{time.strftime('%H:%M:%S', time.localtime())}]", end=""
+            )
+            command = input(f"[{username}] >> ")
+            self.parent.console.print()
 
-        # apply command with arguments
-        if command[0] in commands:
-            try:
-                if command[0] == "login" or command[0] == "register":
-                    username = commands[command[0]](*command[1::])
-                    prompt(console, username)
-                else:
-                    commands[command[0]](*command[1::])
-                    prompt(console, username)
+            # split command by spaces
+            command = command.split(" ")
 
-            except httpx.ConnectError:
-                console.print("\nCannot connect to server\n", style="danger")
-            except AttributeError:
-                console.print(
-                    f"\nIncorrect usage, please use 'help {command[0]}' for instructions.\n",
-                    style="warning",
+            # apply command with arguments
+            if command[0] in commands:
+                try:
+                    if command[0] == "login" or command[0] == "register":
+                        username = commands[command[0]](*command[1::])
+                        self.run(username)
+                    else:
+                        commands[command[0]](*command[1::])
+                        self.run(username)
+
+                except httpx.ConnectError:
+                    self.parent.console.print(
+                        "\nCannot connect to server\n", style="danger"
+                    )
+                except AttributeError:
+                    self.parent.console.print(
+                        f"\nIncorrect usage, please use 'help {command[0]}' for instructions.\n",
+                        style="warning",
+                    )
+
+            elif command[0] == "":
+                print()
+            elif command[0] == "exit":
+                raise KeyboardInterrupt
+
+            # TODO figure out how to break out of prompt loop and restart startup
+            elif command[0] == "disconnect":
+                with open("data/session.json", "w") as fp:
+                    fp.write("")
+                self.parent.console.print(
+                    "You have disconnected successfully\n", style="success"
                 )
-
-        elif command[0] == "":
-            print()
-        elif command[0] == "exit":
-            raise KeyboardInterrupt
-
-        # TODO figure out how to break out of prompt loop and restart startup
-        elif command[0] == "disconnect":
-            with open("data/session.json", "w") as fp:
-                fp.write("")
-            console.print("You have disconnected successfully\n", style="success")
-            prompt(console, None)
-        else:
-            console.print("Bad command\n", style="danger")
+                # self.run(None)
+                self.parent.startup()
+            else:
+                self.parent.console.print("Bad command\n", style="danger")

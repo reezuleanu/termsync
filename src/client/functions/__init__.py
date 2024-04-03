@@ -1,3 +1,3 @@
 from .startup import startup
-from .prompt import prompt
+from .prompt import Prompt
 from .help import help

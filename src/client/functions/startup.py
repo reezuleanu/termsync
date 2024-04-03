@@ -1,7 +1,8 @@
 from rich.console import Console
 from ui import display_logo
 import json
-from .prompt import prompt
+
+# from .prompt import prompt
 from time import sleep
 from api import api
 
