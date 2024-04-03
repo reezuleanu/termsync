@@ -192,7 +192,7 @@ def test_modify_other_user() -> None:
         json=modified_user.model_dump(),
     )
 
-    assert response.status_code == 400
+    assert response.status_code == 401
     assert response.json()["detail"] == "You cannot modify another user's account"
 
 
@@ -208,7 +208,7 @@ def test_modify_username() -> None:
         json=modified_user.model_dump(),
     )
 
-    assert response.status_code == 401
+    assert response.status_code == 400
     assert response.json()["detail"] == "You cannot change the username"
 
     # check the username in the database didn't change
