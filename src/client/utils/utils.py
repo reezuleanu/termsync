@@ -41,3 +41,21 @@ def clear_screen(*args) -> None:
     """System call to clear screen"""
 
     system("clear")
+
+
+def get_token() -> str:
+    """Get token from session.json
+
+    Returns:
+        str: token
+    """
+
+    try:
+        with open("data/session.json", "r") as fp:
+            token = json.load(fp)["token-uuid"]
+
+    except json.decoder.JSONDecodeError or FileNotFoundError:
+        token = None
+
+    finally:
+        return token
