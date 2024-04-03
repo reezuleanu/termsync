@@ -1,10 +1,9 @@
 from rich.console import Console
 from time import sleep
-import json
 
 from api import API
 from ui import display_logo
-from utils import clear_screen
+from utils import clear_screen, get_token
 from functions import Prompt
 
 
@@ -29,14 +28,7 @@ class App:
         self.console.print("\n\n")  # add a bit of space
 
         # get token from session.json
-        try:
-            with open("data/session.json", "r") as fp:
-                try:
-                    token = json.load(fp)["token-uuid"]
-                except json.decoder.JSONDecodeError:
-                    token = None
-        except FileNotFoundError:
-            token = None
+        token = get_token()
 
         if token is None:
             self.console.print(
