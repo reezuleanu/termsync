@@ -50,12 +50,33 @@ def get_token() -> str:
         str: token
     """
 
+    token = None
     try:
         with open("data/session.json", "r") as fp:
             token = json.load(fp)["token-uuid"]
 
     except json.decoder.JSONDecodeError or FileNotFoundError:
-        token = None
+        # token = None
+        return token
 
     finally:
+        # for whatever reason it threw an unbound error even if it was defined in both try and except
         return token
+
+
+def get_username() -> str:
+    """Get username from session.json
+
+    Returns:
+        str: username
+    """
+
+    try:
+        with open("data/session.json", "r") as fp:
+            username = json.load(fp)["username"]
+
+    except json.decoder.JSONDecodeError or FileNotFoundError:
+        username = None
+
+    finally:
+        return username
