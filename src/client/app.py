@@ -3,7 +3,7 @@ from time import sleep
 
 from api import API
 from ui import display_logo
-from utils import clear_screen, get_token
+from utils import clear_screen, get_token, get_username
 from functions import Prompt
 
 
@@ -71,7 +71,7 @@ class App:
             # if token is still valid
             if rc is True:
                 self.console.print("You are logged in\n", style="success")
-                self.prompt.run(self.api.get_username(token))
+                self.prompt.run(get_username())
 
     def run(self) -> None:
         try:
