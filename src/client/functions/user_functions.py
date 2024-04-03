@@ -76,6 +76,22 @@ def login(username: str = None, console: Console = console, api: API = api) -> s
     return api.get_username(token)
 
 
+def delete_account(username: str, hashed_password: str) -> int:
+    raise NotImplementedError
+
+
+def edit_account() -> int:
+    raise NotImplementedError
+
+
+def get_user() -> User:
+    raise NotImplementedError
+
+
+def make_admin() -> int:
+    raise NotImplementedError
+
+
 def test(console: Console = console) -> None:
     i = {"username": "bob", "full_name": "bob the builder"}
     i["username"] = f"[yellow]{i['username']}[/yellow]"
