@@ -9,13 +9,15 @@ from utils import NotAdmin
 
 
 class API:
-    """API interface"""
+    """API interface component"""
 
     def __init__(self, host, port) -> None:
         self.host = host
         self.port = port
         self.server = f"http://{host}:{port}"
         self.client = httpx.Client(base_url=self.server)
+
+    # USER METHODS
 
     def get_username(self, token: UUID) -> str:
         """Get user's username to display in prompt"""
@@ -30,7 +32,14 @@ class API:
         return response.json()["username"]
 
     def check_token(self, token: UUID) -> bool:
-        """Method that checks if the token is still valid"""
+        """Method that checks if the token is still valid
+
+        Args:
+            token (UUID): session token
+
+        Returns:
+            bool: token validity
+        """
 
         response = self.client.get(
             "/",
@@ -41,7 +50,16 @@ class API:
         else:
             return False
 
+    # ! UNUSED
     def check_admin(self, token: UUID) -> bool:
+        """Check if user is admin
+
+        Args:
+            token (UUID): session token
+
+        Returns:
+            bool: is admin
+        """
 
         response = self.client.get(
             "/",
@@ -52,7 +70,7 @@ class API:
             return None
         return response.json()["admin"]
 
-    def register(self, user: User, password: str) -> UUID:
+    def post_user(self, user: User, password: str) -> UUID:
         """Method that registers a new user
 
         Args:
@@ -102,6 +120,15 @@ class API:
             return None
 
     def get_user(self, token: str, username: str) -> User:
+        """Get user data from api
+
+        Args:
+            token (str): session token
+            username (str): username of user to get data of
+
+        Returns:
+            User: user data
+        """
 
         response = self.client.get(
             f"/users/{username}",
@@ -114,6 +141,19 @@ class API:
             return None
 
     def delete_user(self, token: str, username: str, password: str) -> int:
+        """Delete user
+
+        Args:
+            token (str): session token
+            username (str): username of user to delete
+            password (str): user password for confirmation
+
+        Raises:
+            NotAdmin: if trying to delete another account and you are not an admin
+
+        Returns:
+            int: return code
+        """
 
         # hash password
         password = password.encode("utf-8")
@@ -132,7 +172,7 @@ class API:
         else:
             return 1
 
-    def edit_user(self, token: str, user_data: User) -> int:
+    def put_user(self, token: str, user_data: User) -> int:
 
         response = self.client.put(
             f"/users/{user_data.username}",
@@ -148,6 +188,18 @@ class API:
             return 1
 
     def make_admin(self, token: str, username: str) -> int:
+        """Make user admin. Must be an admin yourself
+
+        Args:
+            token (str): session token
+            username (str): username of user to promote
+
+        Raises:
+            NotAdmin: if not admin
+
+        Returns:
+            int: return code
+        """
 
         response = self.client.post(f"/admin/{username}", headers={"token-uuid": token})
 
@@ -159,6 +211,20 @@ class API:
             return 2
         else:
             return 1
+
+    # PROJECT METHODS
+
+    def post_project() -> int:
+        raise NotImplementedError
+
+    def get_project() -> int:
+        raise NotImplementedError
+
+    def put_project() -> int:
+        raise NotImplementedError
+
+    def delete_project() -> int:
+        raise NotImplementedError
 
 
 # with open("data/settings.yaml", "r") as fp:
