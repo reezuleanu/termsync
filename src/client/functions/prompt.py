@@ -27,6 +27,8 @@ commands = {
 
 
 class Prompt:
+    """App prompt component"""
+
     def __init__(self, parent) -> None:
         self.parent = parent
 
@@ -55,7 +57,7 @@ class Prompt:
                     self.run(get_username())
 
                 except NotLoggedIn:
-                    self.parent.startup()
+                    self.parent.startup()  # restart app
 
                 except httpx.ConnectError:
                     self.parent.console.print(
@@ -72,7 +74,7 @@ class Prompt:
             elif command[0] == "exit":
                 raise KeyboardInterrupt
             elif command[0] == "restart":
-                self.parent.startup()
+                self.parent.startup()  # restart app
 
             elif command[0] == "disconnect":
                 with open("data/session.json", "w") as fp:

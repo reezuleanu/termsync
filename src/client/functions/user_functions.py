@@ -27,7 +27,7 @@ def register(*args, console: Console = console, api: API = api) -> None:
     new_user = User(username=username, full_name=full_name)
 
     # api call and token serialization
-    token = api.register(new_user, password)
+    token = api.post_project(new_user, password)
 
     if token is None:
         console.print("\nCould not create new user", style="danger")
@@ -148,7 +148,7 @@ def edit_account(
     # api call
     user.full_name = new_full_name
     try:
-        rc = api.edit_user(token, user)
+        rc = api.put_user(token, user)
 
     except NotAdmin:
         console.print("\nYou cannot edit someone else's account\n", style="danger")
@@ -191,6 +191,14 @@ def account(
 def get_user(
     username: str | None = None, console: Console = console, api: API = api
 ) -> None:
+    """Get user data from API
+
+    Args:
+        username (str | None, optional): Username of user to get data of. If none, get user data of self.
+
+    Raises:
+        NotLoggedIn: invalid token
+    """
 
     # check token
     token = get_token()
@@ -217,7 +225,15 @@ def print_user(user: User, console: Console) -> None:
     console.print()
 
 
-def make_admin(username: str, console: Console = console, api: API = api) -> int:
+def make_admin(username: str, console: Console = console, api: API = api) -> None:
+    """Make another user an admin (must be an admin yourself)
+
+    Args:
+        username (str): username of user to promote to admin
+
+    Raises:
+        NotLoggedIn: invalid token
+    """
 
     # check token
     token = get_token()
@@ -240,6 +256,8 @@ def make_admin(username: str, console: Console = console, api: API = api) -> int
 
 
 def test(console: Console = console) -> None:
+    """Test function, please ignore"""
+
     i = {"username": "bob", "full_name": "bob the builder"}
     i["username"] = f"[yellow]{i['username']}[/yellow]"
     # for key in i.keys():
