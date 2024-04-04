@@ -6,10 +6,9 @@ from .user_functions import (
     login,
     register,
     test,
-    delete_account,
-    edit_account,
     get_user,
     make_admin,
+    account,
 )
 from .help import help
 from utils import clear_screen, get_username, NotLoggedIn
@@ -21,8 +20,7 @@ commands = {
     "clear": clear_screen,
     "test": test,
     "help": help,
-    "account_delete": delete_account,
-    "account_edit": edit_account,
+    "account": account,
     "user": get_user,
     "op": make_admin,
 }
@@ -53,12 +51,6 @@ class Prompt:
             # apply command with arguments
             if command[0] in commands:
                 try:
-                    # if command[0] == "login" or command[0] == "register":
-                    #     username = commands[command[0]](*command[1::])
-                    #     self.run(username)
-                    # else:
-                    #     commands[command[0]](*command[1::])
-                    #     self.run(username)
                     commands[command[0]](*command[1::])
                     self.run(get_username())
 

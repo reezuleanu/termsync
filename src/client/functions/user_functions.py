@@ -116,6 +116,14 @@ def delete_account(
 def edit_account(
     username: str | None = None, console: Console = console, api: API = api
 ) -> None:
+    """Edit account details. At the moment, only the full name is eligable for edit
+
+    Args:
+        username (str | None, optional): Username of user account to edit. If none, edit self's account.
+
+    Raises:
+        NotLoggedIn: If token is expired or not there, raise custom exception
+    """
 
     # check token
     token = get_token()
@@ -141,6 +149,7 @@ def edit_account(
     user.full_name = new_full_name
     try:
         rc = api.edit_user(token, user)
+
     except NotAdmin:
         console.print("\nYou cannot edit someone else's account\n", style="danger")
         return
@@ -150,6 +159,33 @@ def edit_account(
         return
 
     console.print("\nUser edited successfully\n", style="success")
+
+
+def account(
+    function: str = None,
+    username: str | None = None,
+    console: Console = console,
+    api: API = api,
+) -> callable:
+    """Parent function to combine edit_account() and delete_account()
+
+    Args:
+        function (str, optional): Which function to use. Defaults to None (to avoid exception).
+        username (str | None, optional): Username of account to work on. If none, work on self's account.
+
+    Returns:
+        callable: the respective account function
+    """
+
+    if function == "edit":
+        return edit_account(username)
+    elif function == "delete":
+        return delete_account(username)
+    else:
+        console.print(
+            "\nIncorrect usage, please use 'help account' for instructions.\n",
+            style="warning",
+        )
 
 
 def get_user(
@@ -231,7 +267,7 @@ def test(console: Console = console) -> None:
     console.print(pfp)
     console.print(
         Panel.fit(
-            f"\nUsername: {'bob'}\n\nFull Name: {'bob the builder'}",
+            f"\nUsername: {'bob'}\n\nFull Name: {'bob the sussy'}",
             border_style=color,
             title="Bob's details",
         ),
