@@ -206,6 +206,11 @@ def get_user(
         console.print("\nUser not found\n", style="danger")
         return
 
+    print_user(user, console)
+
+
+def print_user(user: User, console: Console) -> None:
+
     # todo implement print user data function
     console.print()
     console.print(user.model_dump())
