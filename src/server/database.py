@@ -1,5 +1,5 @@
 # global imports
-from pymongo import MongoClient
+from pymongo import MongoClient, cursor
 from uuid import UUID
 from bson import ObjectId
 from typing import Union, List
@@ -66,8 +66,7 @@ class Database:
             return query
         return query["_id"]
 
-    # todo implement this
-    def get_multiple_by_username(self, username: str) -> list[User]:
+    def search_users(self, username: str) -> list[User]:
         """Method that searches the database for users that
         somewhat match the username"
 
@@ -78,7 +77,13 @@ class Database:
             list[User]: list of results
         """
 
-        raise NotImplementedError
+        # query for name, case insensitive
+        query = self.db.users.find(
+            {"username": {"$regex": username, "$options": "i"}},
+            {"username": 1, "_id": 0},
+        )
+
+        return query
 
     def post_user(self, user_data: User_DB) -> list[bool, ObjectId]:
         """Method that creates a user in the database
@@ -205,6 +210,12 @@ class Database:
         return request.acknowledged
 
     # PROJECT METHODS
+    def get_all_project(self, username: str) -> cursor:
+
+        request = self.db.projects.find({"members": {"$elemMatch": {"$eq": username}}})
+
+        return request
+
     def add_project(self, project: Project) -> bool:
 
         request = self.db.projects.insert_one(project.model_dump())

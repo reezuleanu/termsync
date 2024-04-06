@@ -101,4 +101,5 @@ class App:
             while True:
                 self.startup()
         except KeyboardInterrupt:
+            self.api.client.close()
             clear_screen()

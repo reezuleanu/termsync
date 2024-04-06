@@ -35,6 +35,27 @@ class Project(BaseModel):
     # allow ObjectId
     model_config = {"arbitrary_types_allowed": True}
 
+    @property
+    def progress(self) -> list[int, int]:
+        """Method that calculates overall project progress
+
+        Returns:
+            list[int]: list of 2 integers, first is chores completed so far, the second is overall chores
+        """
+        total = 0
+        done = 0
+        for task in self.tasks:
+            if type(task) is Milestone_Task:
+                total = total + task.milestones
+                done = done + task.completed
+            elif type(task) is Discrete_Task:
+                total = total + 1
+                done = done + int(task.completed)
+            else:
+                continue
+
+        return [done, total]
+
     # task related methods
     def add_task(self, task: Task) -> bool:
         """Add a single task to the project (could get messy if I tried to

@@ -1,6 +1,6 @@
 from uuid import UUID
 import httpx
-from models import User
+from models import User, Project
 import hashlib
 
 from utils import NotAdmin
@@ -140,6 +140,17 @@ class API:
         else:
             return None
 
+    def get_multiple_users(self, token: str, username: str) -> list[str]:
+
+        response = self.client.get(
+            f"/users/?search={username}", headers={"token-uuid": token}
+        )
+
+        if response.status_code == 200:
+            return response.json()
+        else:
+            return None
+
     def delete_user(self, token: str, username: str, password: str) -> int:
         """Delete user
 
@@ -169,6 +180,8 @@ class API:
             return 0
         elif response.status_code == 401:
             raise NotAdmin
+        elif response.status_code == 404:
+            return 2
         else:
             return 1
 
@@ -184,6 +197,8 @@ class API:
             return 0
         elif response.status_code == 401:
             raise NotAdmin
+        elif response.status_code == 404:
+            return 2
         else:
             return 1
 
@@ -214,17 +229,137 @@ class API:
 
     # PROJECT METHODS
 
-    def post_project() -> int:
-        raise NotImplementedError
+    def post_project(self, project_data: Project, token: str) -> int:
+        """Create project
 
-    def get_project() -> int:
-        raise NotImplementedError
+        Args:
+            project_data (Project): project data
+            token (str): session token
 
-    def put_project() -> int:
-        raise NotImplementedError
+        Returns:
+            int: return code
+        """
 
-    def delete_project() -> int:
-        raise NotImplementedError
+        # api call
+        response = self.client.post(
+            "/projects/",
+            headers={"content-type": "application/json", "token-uuid": token},
+            json=project_data.model_dump(),
+        )
+
+        # if successful
+        if response.status_code == 200:
+            return 0
+
+        # if name already taken
+        if response.status_code == 403:
+            return 2
+
+        # if any other error
+        else:
+            return 1
+
+    def get_project(self, token: str, project_name: str) -> Project:
+        """Get project data from API
+
+        Args:
+            token (str): session token
+            project_name (str): name of project
+
+        Returns:
+            Project: project data
+        """
+
+        response = self.client.get(
+            f"/projects/{project_name}",
+            headers={"content-type": "application/json", "token-uuid": token},
+        )
+
+        if response.status_code == 200:
+            return Project(**response.json())
+        else:
+            return response.status_code
+
+    def get_all_projects(self, token: str) -> dict:
+
+        response = self.client.get("/projects/all/", headers={"token-uuid": token})
+
+        if response.status_code == 200:
+            return response.json()
+        else:
+            return response.status_code
+
+    def put_project(self, token: str, project_name: str, updated_data: Project) -> int:
+
+        response = self.client.put(
+            f"/projects/{project_name}",
+            headers={"content-type": "application/json", "token-uuid": token},
+            json=updated_data.model_dump(),
+        )
+
+        if response.status_code == 403:
+            raise NotAdmin
+        return response.status_code
+
+    def delete_project(self, token: str, project_name: str) -> int:
+
+        response = self.client.delete(
+            f"/projects/{project_name}", headers={"token-uuid": token}
+        )
+
+        if response.status_code == 403:
+            raise NotAdmin
+        return response.status_code
+
+    def project_add_member(self, token: str, project_name: str, username: str) -> int:
+
+        response = self.client.post(
+            f"/projects/{project_name}/members/{username}",
+            headers={"token-uuid": token},
+        )
+
+        if response.status_code == 403:
+            raise NotAdmin
+        return response.status_code
+
+    def project_remove_member(
+        self, token: str, project_name: str, username: str
+    ) -> int:
+
+        response = self.client.delete(
+            f"/projects/{project_name}/members/{username}",
+            headers={"token-uuid": token},
+        )
+
+        if response.status_code == 403:
+            raise NotAdmin
+        return response.status_code
+
+    def project_add_moderator(
+        self, token: str, project_name: str, username: str
+    ) -> int:
+
+        response = self.client.post(
+            f"/projects/{project_name}/moderators/{username}",
+            headers={"token-uuid": token},
+        )
+
+        if response.status_code == 403:
+            raise NotAdmin
+        return response.status_code
+
+    def project_remove_moderator(
+        self, token: str, project_name: str, username: str
+    ) -> int:
+
+        response = self.client.delete(
+            f"/projects/{project_name}/moderators/{username}",
+            headers={"token-uuid": token},
+        )
+
+        if response.status_code == 403:
+            raise NotAdmin
+        return response.status_code
 
 
 # with open("data/settings.yaml", "r") as fp:

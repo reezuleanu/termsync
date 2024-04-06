@@ -70,6 +70,24 @@ def get_project(
     return project
 
 
+@router.get("/projects/all/")
+def get_all_projects(
+    user: User = Depends(token_auth), db: Database = Depends(db_depend)
+) -> dict:
+
+    # get all projects user is a member of
+    query = db.get_all_project(user.username)
+    if query is None:
+        raise HTTPException(404, "Could not find any projects")
+
+    response = {}
+    for project in query:
+        project = Project(**project)
+        response[project.name] = project.progress
+
+    return response
+
+
 @router.put("/projects/{project_name}")
 def update_project(
     updated_project: Project,
@@ -212,7 +230,7 @@ def add_project_moderator(
     # check if user to be made moderator is part of project
     if member_username not in project.members:
         raise HTTPException(
-            400,
+            404,
             "User is not a member of the project. Add them before making them a moderator",
         )
 
@@ -241,7 +259,7 @@ def remove_project_moderator(
     # check if user to be demoted is a moderator
     if member_username not in project.moderators:
         raise HTTPException(
-            400,
+            404,
             "User is not a moderator in this project",
         )
 
@@ -295,15 +313,6 @@ def update_task(
     db: Database = Depends(db_depend),
     admin: bool = Depends(admin_auth),
 ) -> dict:
-
-    # # check if project exists
-    # project = db.get_project(project_name)
-
-    # if project is None:
-    #     raise HTTPException(404, "Project not found")
-
-    # # check if user has sufficient permissions to view project
-    # user_id = db.get_user_id(user.username)
 
     # check if user has sufficient permissions to modify task
     if (
@@ -376,7 +385,6 @@ def delete_task(
 def update_task_completion(
     task_name: str,
     completion: bool | int,
-    # updated_task: Discrete_Task | Milestone_Task,
     project: Project = Depends(project_depend),
     user: User = Depends(token_auth),
     db: Database = Depends(db_depend),

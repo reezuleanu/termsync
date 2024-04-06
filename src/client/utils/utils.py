@@ -1,6 +1,7 @@
 import json
 from bson import json_util, BSON
 from os import system
+from .exceptions import NotLoggedIn
 
 
 # ! OBSOLETE
@@ -33,7 +34,7 @@ def replace(list: list, value: any, replacement: any) -> None:
         replacement (any): value to be replaced with
     """
 
-    index = list.index(value)
+    index: int = list.index(value)
     list[index] = replacement
 
 
@@ -50,18 +51,23 @@ def get_token() -> str:
         str: token
     """
 
-    token = None
+    token: str = None
     try:
         with open("data/session.json", "r") as fp:
             token = json.load(fp)["token-uuid"]
 
     except json.decoder.JSONDecodeError or FileNotFoundError:
-        # token = None
-        return token
+        token = None
+        # return token
 
     finally:
         # for whatever reason it threw an unbound error even if it was defined in both try and except
         return token
+
+    # if token is None:
+    #     raise NotLoggedIn
+
+    # return token
 
 
 def get_username() -> str:
@@ -71,6 +77,7 @@ def get_username() -> str:
         str: username
     """
 
+    username: str = None
     try:
         with open("data/session.json", "r") as fp:
             username = json.load(fp)["username"]
@@ -80,3 +87,8 @@ def get_username() -> str:
 
     finally:
         return username
+
+    # if username is None:
+    #     raise NotLoggedIn
+
+    # return username

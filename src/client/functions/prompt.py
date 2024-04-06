@@ -6,10 +6,11 @@ from .user_functions import (
     login,
     register,
     test,
-    get_user,
     make_admin,
-    account,
+    user,
 )
+from .project_functions import project
+
 from .help import help
 from utils import clear_screen, get_username, NotLoggedIn
 
@@ -20,9 +21,10 @@ commands = {
     "clear": clear_screen,
     "test": test,
     "help": help,
-    "account": account,
-    "user": get_user,
+    "account": user,
+    "user": user,
     "op": make_admin,
+    "project": project,
 }
 
 
@@ -61,16 +63,21 @@ class Prompt:
 
                 except httpx.ConnectError:
                     self.parent.console.print(
-                        "\nCannot connect to server\n", style="danger"
+                        "Cannot connect to server\n", style="danger"
                     )
-                except AttributeError:
+                except (AttributeError, TypeError):
                     self.parent.console.print(
-                        f"\nIncorrect usage, please use 'help {command[0]}' for instructions.\n",
+                        f"Incorrect usage, please use 'help {command[0]}' for instructions.\n",
+                        style="warning",
+                    )
+                except NotImplementedError:
+                    self.parent.console.print(
+                        "This feature is not yet finished, please be patient\n",
                         style="warning",
                     )
 
             elif command[0] == "":
-                print()
+                continue
             elif command[0] == "exit":
                 raise KeyboardInterrupt
             elif command[0] == "restart":

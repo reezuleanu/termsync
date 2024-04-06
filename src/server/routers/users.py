@@ -75,7 +75,7 @@ def delete_user(
     if user.username != user_db.username and admin is False:
         raise HTTPException(401, "You cannot delete someone else's account")
 
-    if password != user_db.password:
+    if password != user_db.password and admin is False:
         raise HTTPException(401, "Incorrect password")
 
     rc = db.delete_user(username)
@@ -106,6 +106,23 @@ def get_user(
         raise HTTPException(404, "User not found")
 
     return query
+
+
+@router.get("/users/")
+def search_users(
+    search: str, user: User = Depends(token_auth), db: Database = Depends(db_depend)
+) -> list[str]:
+
+    query = db.search_users(search)
+
+    if query is None:
+        raise HTTPException(404, "Could not find any users with that search")
+
+    response = []
+    for user in query:
+        response.append(user["username"])
+
+    return response
 
 
 @router.put("/users/{username}")

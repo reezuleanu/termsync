@@ -8,7 +8,7 @@ from rich.layout import Layout
 from ui import console
 from models import User
 from api import API, api
-from utils import get_token, NotLoggedIn, NotAdmin
+from utils import get_token, NotLoggedIn, NotAdmin, get_username
 
 
 def register(*args, console: Console = console, api: API = api) -> None:
@@ -24,10 +24,13 @@ def register(*args, console: Console = console, api: API = api) -> None:
     full_name = str(input("\nEnter full name: "))
     password = str(getpass.getpass("\nEnter password: "))
 
-    new_user = User(username=username, full_name=full_name)
+    try:
+        new_user = User(username=username, full_name=full_name)
+    except:
+        console.print("\nProvided details are not valid\n", style="danger")
 
     # api call and token serialization
-    token = api.post_project(new_user, password)
+    token = api.post_user(new_user, password)
 
     if token is None:
         console.print("\nCould not create new user", style="danger")
@@ -53,8 +56,9 @@ def login(
     # input
     if username is None:
         username = str(input("Username: "))
+        console.print()
 
-    password = str(getpass.getpass("\nPassword: "))
+    password = str(getpass.getpass("Password: "))
 
     # login call
     token = api.login(username, password)
@@ -71,18 +75,19 @@ def login(
     console.print("\nLogin successful\n", style="success")
 
 
-def delete_account(
-    username: str | None = None, console: Console = console, api: API = api
+def delete_user(
+    username: str | None = None,
+    # token: str = get_token(),
+    console: Console = console,
+    api: API = api,
 ) -> None:
     """Delete account. Upon deletion, app exits
 
     Args:
-        username (str | None, optional): username of account to delete. If provided, it won't ask you for the username again. Defaults to None.
-        console (Console, optional): Rich console. Defaults to console.
-        api (API, optional): API interface. Defaults to api.
+        username (str | None, optional): Username of account to delete. If provided, it won't ask you for the username again.
 
     Raises:
-        NotLoggedIn: if not logged in
+        NotLoggedIn: invalid token
     """
 
     # check token
@@ -106,15 +111,21 @@ def delete_account(
     if rc == 1:
         console.print("\nCould not delete account\n", style="danger")
         return
+    if rc == 2:
+        console.print("\nCould not find user\n", style="danger")
 
     console.print("\nAccount deleted sucessfully\n", style="success")
-    console.print("Press any key to exit\n")
-    input()
-    raise KeyboardInterrupt
+    if username == get_username():
+        console.print("Press Enter to exit\n")
+        input()
+        raise KeyboardInterrupt
 
 
-def edit_account(
-    username: str | None = None, console: Console = console, api: API = api
+def edit_user(
+    username: str | None = None,
+    # token: str = get_token(),
+    console: Console = console,
+    api: API = api,
 ) -> None:
     """Edit account details. At the moment, only the full name is eligable for edit
 
@@ -136,7 +147,7 @@ def edit_account(
     # get latest data from api
     user = api.get_user(token, username)
     if user is None:
-        console.print("\nUser does not exist\n", style="danger")
+        console.print("User does not exist\n", style="danger")
         return
 
     # get input
@@ -157,38 +168,14 @@ def edit_account(
     if rc == 1:
         console.print("\nCould not edit user\n", style="danger")
         return
+    if rc == 2:
+        console.print("\nCould not find user\n", style="danger")
+        return
 
     console.print("\nUser edited successfully\n", style="success")
 
 
-def account(
-    function: str = None,
-    username: str | None = None,
-    console: Console = console,
-    api: API = api,
-) -> callable:
-    """Parent function to combine edit_account() and delete_account()
-
-    Args:
-        function (str, optional): Which function to use. Defaults to None (to avoid exception).
-        username (str | None, optional): Username of account to work on. If none, work on self's account.
-
-    Returns:
-        callable: the respective account function
-    """
-
-    if function == "edit":
-        return edit_account(username)
-    elif function == "delete":
-        return delete_account(username)
-    else:
-        console.print(
-            "\nIncorrect usage, please use 'help account' for instructions.\n",
-            style="warning",
-        )
-
-
-def get_user(
+def show_user(
     username: str | None = None, console: Console = console, api: API = api
 ) -> None:
     """Get user data from API
@@ -205,24 +192,85 @@ def get_user(
     if token is None or api.check_token(token) is False:
         raise NotLoggedIn
 
+    # input
     if username is None:
         username = api.get_username(token)
 
+    # api call
     user = api.get_user(token, username)
 
     if user is None:
-        console.print("\nUser not found\n", style="danger")
+        console.print("User not found\n", style="danger")
         return
 
     print_user(user, console)
 
 
+def search_user(username: str, console: Console = console, api: API = api) -> None:
+    """Query users by username
+
+    Args:
+        username (str): username to query by
+
+    Raises:
+        NotLoggedIn: invalid token
+    """
+
+    # check token
+    token = get_token()
+    if token is None or api.check_token(token) is False:
+        raise NotLoggedIn
+
+    # api call
+    query = api.get_multiple_users(token, username)
+
+    # data handling
+    if len(query) == 0:
+        console.print("Could not find anyone with that username\n", style="warning")
+        return
+
+    console.print(query)
+    console.print()
+
+
 def print_user(user: User, console: Console) -> None:
+    """Function to properly print user data
+
+    Args:
+        user (User): user data
+        console (Console): Rich console
+    """
 
     # todo implement print user data function
-    console.print()
     console.print(user.model_dump())
     console.print()
+
+
+def user(
+    function: str,
+    username: str | None = None,
+) -> callable:
+    """Parent function to combine all user function
+
+    Args:
+        function (str, optional): Which function to use. Defaults to None (to avoid exception).
+        username (str | None, optional): Username of account to work on. If none, work on self's account.
+
+    Returns:
+        callable: the respective account function
+    """
+
+    match function:
+        case "edit":
+            return edit_user(username)
+        case "delete":
+            return delete_user(username)
+        case "show":
+            return show_user(username)
+        case "search":
+            return search_user(username)
+        case _:
+            raise AttributeError
 
 
 def make_admin(username: str, console: Console = console, api: API = api) -> None:
@@ -242,17 +290,19 @@ def make_admin(username: str, console: Console = console, api: API = api) -> Non
 
     try:
         rc = api.make_admin(token, username)
+
     except NotAdmin:
-        console.print("\nYou have to be an admin to use this command\n", style="danger")
+        console.print("You have to be an admin to use this command\n", style="danger")
         return
 
     if rc == 1:
-        console.print("\nCould not promote user\n", style="danger")
+        console.print("Could not promote user\n", style="danger")
         return
     if rc == 2:
-        console.print("\nUser not found\n", style="warning")
+        console.print("User not found\n", style="warning")
         return
-    console.print("\nUser promoted successfully\n", style="success")
+
+    console.print("User promoted successfully\n", style="success")
 
 
 def test(console: Console = console) -> None:
