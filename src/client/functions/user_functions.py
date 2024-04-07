@@ -4,11 +4,11 @@ from rich.text import Text
 from random import choice
 import getpass
 import json
-from rich.layout import Layout
+
 from ui import console
 from models import User
 from api import API, api
-from utils import get_token, NotLoggedIn, NotAdmin, get_username
+from utils import get_token, get_username, NotLoggedIn, NotAdmin
 
 
 def register(*args, console: Console = console, api: API = api) -> None:
@@ -229,8 +229,7 @@ def search_user(username: str, console: Console = console, api: API = api) -> No
         console.print("Could not find anyone with that username\n", style="warning")
         return
 
-    console.print(query)
-    console.print()
+    print_search_users(query)
 
 
 def print_user(user: User, console: Console) -> None:
@@ -241,9 +240,36 @@ def print_user(user: User, console: Console) -> None:
         console (Console): Rich console
     """
 
-    # todo implement print user data function
-    console.print(user.model_dump())
-    console.print()
+    color = choice(["red", "blue", "green", "cyan", "purple", "magenta", "yellow"])
+    if user.profile_picture is not None:
+        pfp = Panel.fit(
+            user.profile_picture, border_style=color, title="Profile picture"
+        )
+        console.print(pfp)
+    console.print(
+        Panel.fit(
+            f"\n[{color}]Username:[/] {user.username}\n\n[{color}]Full Name:[/] {user.full_name}",
+            border_style=color,
+            title=f"{user.username}'s details",
+        ),
+    )
+    console.print()  # a bit of space
+
+
+def print_search_users(query: list) -> None:
+    """Function to properly print user search results"""
+
+    color = choice(["red", "blue", "green", "cyan", "purple", "magenta", "yellow"])
+    results = Text("\n\n".join(query), justify="center")
+
+    console.print(
+        Panel.fit(
+            f"\n[{color}]{results}[/]\n",
+            border_style=color,
+            title="Search Results",
+        ),
+    )
+    console.print()  # a bit of space
 
 
 def user(
@@ -303,46 +329,3 @@ def make_admin(username: str, console: Console = console, api: API = api) -> Non
         return
 
     console.print("User promoted successfully\n", style="success")
-
-
-def test(console: Console = console) -> None:
-    """Test function, please ignore"""
-
-    i = {"username": "bob", "full_name": "bob the builder"}
-    i["username"] = f"[yellow]{i['username']}[/yellow]"
-    # for key in i.keys():
-    #     console.print(f"\n[white]{key} : {i[key]}[/]", justify="center")
-    # console.print()
-
-    amogus = Text(
-        """                                                                   
-                 *@%**##%@@#               
-                #%+++++++++#@*             
-               =@+++#@@@##*#%@%            
-               @#+++@+.        %           
-           +@@@@#+++@-:.       *@          
-           @++#@*+++%@+-::::-=*@+          
-           @*+%@*++++#@@@@@@@%@=           
-          :@++%@*+++++++++++++%%           
-          :%++%@*+++++++++++++#@           
-          :%++%@*+++++++++++++%#           
-           @*+#@*+++++++++++++@-           
-           -@@@@#++++*@%***#+*@.           
-               @#++++@@:@@+++%%            
-               @#++++@% #%+++%*            
-                @%**@@.   =-:               """,
-        justify="center",
-    )
-
-    color = choice(["red", "blue", "green", "cyan", "purple", "magenta", "yellow"])
-
-    pfp = Panel.fit(amogus, border_style=color, title="Profile picture")
-    console.print(pfp)
-    console.print(
-        Panel.fit(
-            f"\nUsername: {'bob'}\n\nFull Name: {'bob the sussy'}",
-            border_style=color,
-            title="Bob's details",
-        ),
-    )
-    console.print()

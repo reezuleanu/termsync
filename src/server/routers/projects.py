@@ -296,7 +296,7 @@ def add_task(
         raise HTTPException(403, "You are not authorized to add tasks to this project")
 
     if project.add_task(task) is False:
-        raise HTTPException(500, "Could not add task to project. Task already exists.")
+        raise HTTPException(401, "Could not add task to project. Task already exists.")
 
     if db.update_project(project_name, project) is False:
         raise HTTPException(500, "Could not add task to project")
@@ -491,7 +491,7 @@ def remove_task_member(
     # check if member is part of the task
     if member_username not in project.tasks[task_index].members:
         raise HTTPException(
-            404,
+            400,
             "User is not part of the task",
         )
 

@@ -1,3 +1,4 @@
+from rich.console import Console
 import json
 from bson import json_util, BSON
 from os import system

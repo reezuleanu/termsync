@@ -1,5 +1,10 @@
 from rich.console import Console
-from models import User, Project
+from rich.panel import Panel
+from rich.progress import Progress
+from rich.text import Text
+from random import choice
+
+from models import Project, Discrete_Task, Milestone_Task
 from ui import console
 from api import API, api
 from utils import get_token, NotLoggedIn, NotAdmin
@@ -69,8 +74,7 @@ def show_project(
                 style="danger",
             )
         else:
-            console.print(projects)
-            console.print()  # add space
+            print_all_projects(projects)
         return
 
     project = api.get_project(token, project_name)
@@ -89,10 +93,54 @@ def show_project(
         print_project(project)
 
 
-def print_project(project_data: Project) -> None:
+def print_project(project_data: Project, console: Console = console) -> None:
 
-    # todo add proper functionality
-    console.print(project_data.model_dump())
+    color = choice(["red", "blue", "green", "cyan", "purple", "magenta", "yellow"])
+    moderators = ", ".join(project_data.moderators)
+    members = ", ".join(project_data.members)
+    tasks = ""
+    for task in project_data.tasks:
+        if type(task) is Discrete_Task:
+            if task.completed == True:
+                progress = "[green]Completed[/]"
+            else:
+                progress = f"[{int(task.completed)}/1]"
+        else:
+            if task.completed == task.milestones:
+                progress = "[green]Completed[/]"
+            else:
+                progress = f"[{task.completed}/{task.milestones}]"
+
+        converted = f"""
+    [bold]{task.name}[/]
+    [{color}]Description: [/]{task.description}
+    [{color}]Progress: [/]{progress}
+    [{color}]Members: [/]{", ".join(task.members)}
+"""
+        tasks = tasks + converted
+
+    data = Panel.fit(
+        f"""
+[{color}]Owner: [/]{project_data.owner}\n
+[{color}]Moderators: [/]{moderators}\n
+[{color}]Project members: [/]{members}\n
+[{color}]Tasks: [/]
+{tasks}""",
+        border_style=color,
+        title=project_data.name,
+    )
+    console.print(data)
+
+
+def print_all_projects(query: dict, console: Console = console) -> None:
+
+    color = choice(["red", "blue", "green", "cyan", "purple", "magenta", "yellow"])
+    for project in query:
+        console.print(f"[{color}]{project}[/]\n")
+        console.print(
+            f"Progress: [{query[project][0]}/{query[project][1]}]\n",
+        )
+
     console.print()
 
 
@@ -383,7 +431,7 @@ def project_moderators_remove(
         )
 
 
-def project_moderators(function: str, *args, console: Console = console) -> callable:
+def project_moderators(function: str, *args) -> callable:
 
     if function == "add":
         return project_moderators_add(*args)
@@ -393,28 +441,398 @@ def project_moderators(function: str, *args, console: Console = console) -> call
         raise AttributeError
 
 
-def project_add_task() -> int:
-    raise NotImplementedError
+def project_tasks_add(
+    *project_name: str, console: Console = console, api: API = api
+) -> None:
+
+    # join project name into a single string
+    project_name = " ".join(project_name)
+
+    # check token
+    token = get_token()
+    if token is None or api.check_token(token) is False:
+        raise NotLoggedIn
+
+    # input
+    name = str(input("Task name: "))
+    if name == "":
+        console.print("\nYou must enter a project name\n", style="danger")
+        return
+    description = str(input("\nTask description: "))
+
+    type = str(input("\nTask type [discrete | milestone]: "))
+    if type not in ["discrete", "milestone"]:
+        console.print("\nInvalid task type\n", style="danger")
+        return
+
+    if type == "milestone":
+        try:
+            milestones = int(input("\nTotal milestones: "))
+        except:
+            console.print("\nYou must enter a valid number\n", style="danger")
+            return
+
+        try:
+            completed = int(input("\nHow many are completed so far: "))
+        except:
+            console.print("\nYou must enter a valid number\n", style="danger")
+            return
+
+        task = Milestone_Task(
+            name=name,
+            description=description,
+            milestones=milestones,
+            completed=completed,
+        )
+    if type == "discrete":
+        task = Discrete_Task(name=name, description=description, completed=False)
+
+    try:
+        rc = api.project_post_task(token, project_name, task)
+
+    except NotAdmin:
+        console.print(
+            "\nYou must be the owner, a moderator, or an admin to add tasks to this project\n",
+            style="danger",
+        )
+
+    if rc == 200:
+        console.print("\nTask added successfully\n", style="success")
+    elif rc == 401:
+        console.print(
+            "\nTask with this name already exists within project\n", style="danger"
+        )
+    else:
+        console.print(
+            f"\nCould not add task to project (HTTP Error {rc})\n", style="danger"
+        )
 
 
-def project_edit_task() -> int:
-    raise NotImplementedError
+def project_tasks_edit(
+    *project_name: str, console: Console = console, api: API = api
+) -> None:
+
+    # join project name into a single string
+    project_name = " ".join(project_name)
+
+    # check token
+    token = get_token()
+    if token is None or api.check_token(token) is False:
+        raise NotLoggedIn
+
+    # input
+    task_name = str(input("Which task do you want to edit? : "))
+    if task_name == "":
+        console.print("\nYou must enter a task name to edit\n", style="danger")
+        return
+
+    # get latest task data
+    project = api.get_project(token, project_name)
+
+    if type(project) is int:
+        console.print(
+            f"\nCould not get latest data from the project (HTTP Error {project})\n",
+            style="danger",
+        )
+        return
+
+    task_index = [task.name for task in project.tasks].index(task_name)
+    task = project.tasks[task_index]
+
+    # more input
+    task_description = str(input(f"\nTask Description [{task.description}]: "))
+    if task_description == "":
+        task_description = task.description
+
+    task.description = task_description
+
+    if type(task) is Milestone_Task:
+        milestones = str(input(f"\nTotal milestones [{task.milestones}]: "))
+        if milestones == "":
+            milestones = 0
+        else:
+            try:
+                milestones = int(milestones)
+            except ValueError:
+                console.print("\nYou must enter a valid number\n", style="danger")
+                return
+
+        if milestones != 0:
+            task.milestones = milestones
+
+    try:
+        rc = api.project_put_task(token, project_name, task_name, task)
+    except NotAdmin:
+        console.print(
+            "\nYou must be the owner, a moderator, or an admin to edit tasks within this project\n",
+            style="danger",
+        )
+        return
+
+    if rc == 200:
+        console.print("\nTask updated successfully\n", style="success")
+    elif rc == 404:
+        console.print("\nTask not found\n", style="danger")
+    else:
+        console.print(f"\nCould not update task (HTTP Error {rc})\n", style="danger")
 
 
-def project_remove_task() -> int:
-    raise NotImplementedError
+def project_tasks_delete(
+    *project_name: str, console: Console = console, api: API = api
+) -> None:
+
+    # join project name into a single string
+    project_name = " ".join(project_name)
+
+    # check token
+    token = get_token()
+    if token is None or api.check_token(token) is False:
+        raise NotLoggedIn
+
+    # input
+    task_name = str(input("Which task do you want to remove? : "))
+    if task_name == "":
+        console.print("\nYou must enter a task to delete\n", style="danger")
+        return
+
+    # api call
+    try:
+        rc = api.project_delete_task(token, project_name, task_name)
+    except NotAdmin:
+        console.print(
+            "\nYou must be the owner or an admin to delete this project\n",
+            style="danger",
+        )
+
+    if rc == 200:
+        console.print("\nTask deleted successfully\n", style="success")
+    elif rc == 404:
+        console.print("\nCould not find task\n", style="danger")
+    else:
+        console.print(f"\nCould not delete task (HTTP Error {rc})\n", style="danger")
 
 
-def project_task_add_member() -> int:
-    raise NotImplementedError
+def project_tasks_members_add(
+    *project_name: str, console: Console = console, api: API = api
+) -> None:
+
+    # check token
+    token = get_token()
+    if token is None or api.check_token(token) is False:
+        raise NotLoggedIn
+
+    # join project name into a single string
+    project_name = " ".join(project_name)
+
+    # input
+    task_name = str(input("Enter a task name: "))
+    if task_name == "":
+        console.print(
+            "\nYou must enter a task name to add members to\n", style="danger"
+        )
+        return
+
+    username = str(input("\nEnter username of user to add: "))
+    if username == "":
+        console.print("\nYou must enter a user to add to the task\n", style="danger")
+        return
+
+    # api call
+    try:
+        rc = api.project_task_post_member(token, project_name, task_name, username)
+    except NotAdmin:
+        console.print(
+            "\nYou must be the owner, a moderator, or an admin to add users to tasks"
+        )
+        return
+
+    if rc == 200:
+        console.print("\nUser added to the task successfully\n", style="success")
+    elif rc == 400:
+        console.print(
+            "\nUser is not part of the project. Add them as a member of the project first!\n",
+            style="danger",
+        )
+    elif rc == 404:
+        console.print("\nTask not found\n", style="danger")
+    else:
+        console.print(
+            f"\nUser could not be added to task (HTTP Error {rc})\n", style="danger"
+        )
 
 
-def project_task_remove_member() -> int:
-    raise NotImplementedError
+def project_tasks_members_remove(
+    *project_name: str, console: Console = console, api: API = api
+) -> None:
+
+    # check token
+    token = get_token()
+    if token is None or api.check_token(token) is False:
+        raise NotLoggedIn
+
+    # join project name into a single string
+    project_name = " ".join(project_name)
+
+    # input
+    task_name = str(input("Enter a task name: "))
+    if task_name == "":
+        console.print(
+            "\nYou must enter a task name to remove members from\n", style="danger"
+        )
+        return
+
+    username = str(input("\nEnter username of user to remove: "))
+    if username == "":
+        console.print(
+            "\nYou must enter a user to remove from the task\n", style="danger"
+        )
+        return
+
+    # api call
+    try:
+        response = api.project_task_delete_member(
+            token, project_name, task_name, username
+        )
+    except NotAdmin:
+        console.print(
+            "\nYou must be the owner, a moderator, or an admin to remove users from tasks"
+        )
+        return
+
+    # new method to handle api responses
+    match response.status_code:
+        case 200:
+            console.print(
+                "\nUser removed from the task successfully\n", style="success"
+            )
+        case _:
+            console.print(
+                f"\nHTTP Error {response.status_code}: {response.json()['detail']}\n",
+                style="danger",
+            )
+
+    # if rc == 200:
+    #     console.print("\nUser removed from the task successfully\n", style="success")
+    # elif rc == 400:
+    #     console.print(
+    #         "\nUser is not part of the task\n",
+    #         style="danger",
+    #     )
+    # elif rc == 404:
+    #     console.print("\nTask not found\n", style="danger")
+    # else:
+    #     console.print(
+    #         f"\nUser could not be removed from task (HTTP Error {rc})\n", style="danger"
+    #     )
 
 
-def project_task_edit_progress() -> int:
-    raise NotImplementedError
+def project_tasks_progress(
+    *project_name: str, console: Console = console, api: API = api
+) -> None:
+
+    # check token
+    token = get_token()
+    if token is None or api.check_token(token) is False:
+        raise NotLoggedIn
+
+    # join project name into a single string
+    project_name = " ".join(project_name)
+
+    # input
+    task_name = str(input("Enter a task name: "))
+    if task_name == "":
+        console.print(
+            "\nYou must enter a task name to update progress for\n", style="danger"
+        )
+        return
+
+    # get latest data
+    project = api.get_project(token, project_name)
+    if type(project) is int:
+        console.print(
+            f"\nCould not get latest project data (HTTP Error {project})\n",
+            style="danger",
+        )
+        return
+
+    # get task from project
+    try:
+        task_index = [task.name for task in project.tasks].index(task_name)
+    except ValueError:
+        console.print(
+            f"\nThere is no task with that name within '{project_name}'\n",
+            style="danger",
+        )
+        return
+    task = project.tasks[task_index]
+
+    # more input
+    if type(task) is Milestone_Task:
+        progress = str(
+            input(f"\nPlease enter new progress [{task.completed}/{task.milestones}]: ")
+        )
+        if progress == "":
+            console.print("\nProgress was not updated\n", style="success")
+            return
+        else:
+            try:
+                progress = int(progress)
+            except ValueError:
+                console.print("\nPlease enter a valid number\n", style="danger")
+                return
+    else:
+        if task.completed is False:
+            progress = True
+        else:
+            progress = False
+
+    # api call
+    try:
+        response = api.project_task_update_progress(
+            token, project_name, task_name, progress
+        )
+    except NotAdmin:
+        console.print(
+            "\nYou must be a member of the task, a moderator, the owner, or an admin to edit task completion\n",
+            style="danger",
+        )
+
+    match response.status_code:
+        case 200:
+            console.print("\nProgress updated successfully\n", style="success")
+        case _:
+            console.print(
+                f"\nCould not update task progress (HTTP Error {response.status_code}: {response.json()['detail']})",
+                style="danger",
+            )
+
+
+def project_tasks_members(function: str, *args) -> callable:
+
+    match function:
+        case "add":
+            return project_tasks_members_add(*args)
+        case "remove":
+            return project_tasks_members_remove(*args)
+        case _:
+            raise AttributeError
+
+
+def project_tasks(function: str, *args) -> callable:
+
+    match function:
+        case "add":
+            return project_tasks_add(*args)
+        case "delete":
+            return project_tasks_delete(*args)
+        case "edit":
+            return project_tasks_edit(*args)
+        case "members":
+            return project_tasks_members(*args)
+        case "progress":
+            return project_tasks_progress(*args)
+        case _:
+            raise AttributeError
 
 
 def project(function: str, *args: str) -> callable:
@@ -443,5 +861,7 @@ def project(function: str, *args: str) -> callable:
             return project_members(*args)
         case "moderators":
             return project_moderators(*args)
+        case "tasks":
+            return project_tasks(*args)
         case _:
             raise AttributeError

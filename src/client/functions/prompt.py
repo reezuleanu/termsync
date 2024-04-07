@@ -5,7 +5,6 @@ import time
 from .user_functions import (
     login,
     register,
-    test,
     make_admin,
     user,
 )
@@ -19,7 +18,6 @@ commands = {
     "login": login,
     "register": register,
     "clear": clear_screen,
-    "test": test,
     "help": help,
     "account": user,
     "user": user,
@@ -65,11 +63,11 @@ class Prompt:
                     self.parent.console.print(
                         "Cannot connect to server\n", style="danger"
                     )
-                except (AttributeError, TypeError):
-                    self.parent.console.print(
-                        f"Incorrect usage, please use 'help {command[0]}' for instructions.\n",
-                        style="warning",
-                    )
+                # except (AttributeError, TypeError):
+                #     self.parent.console.print(
+                #         f"Incorrect usage, please use 'help {command[0]}' for instructions.\n",
+                #         style="warning",
+                #     )
                 except NotImplementedError:
                     self.parent.console.print(
                         "This feature is not yet finished, please be patient\n",

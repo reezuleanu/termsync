@@ -1,11 +1,11 @@
 from uuid import UUID
 import httpx
-from models import User, Project
+from httpx import Response
+from models import User, Project, Discrete_Task, Milestone_Task
 import hashlib
+import yaml
 
 from utils import NotAdmin
-
-# import yaml
 
 
 class API:
@@ -361,10 +361,100 @@ class API:
             raise NotAdmin
         return response.status_code
 
+    def project_post_task(
+        self, token: str, project_name: str, task_data: Discrete_Task | Milestone_Task
+    ) -> int:
 
-# with open("data/settings.yaml", "r") as fp:
-#     host = yaml.load(fp, )
+        response = self.client.post(
+            f"/projects/{project_name}/tasks/",
+            headers={"token-uuid": token},
+            json=task_data.model_dump(),
+        )
+
+        if response.status_code == 403:
+            raise NotAdmin
+        return response.status_code
+
+    def project_put_task(
+        self,
+        token: str,
+        project_name: str,
+        task_name: str,
+        updated_data: Discrete_Task | Milestone_Task,
+    ) -> int:
+
+        response = self.client.put(
+            f"/projects/{project_name}/tasks/{task_name}",
+            headers={"token-uuid": token},
+            json=updated_data.model_dump(),
+        )
+
+        if response.status_code == 403:
+            raise NotAdmin
+        return response.status_code
+
+    def project_delete_task(self, token: str, project_name: str, task_name: str) -> int:
+
+        response = self.client.delete(
+            f"/projects/{project_name}/tasks/{task_name}",
+            headers={"token-uuid": token},
+        )
+
+        if response.status_code == 403:
+            raise NotAdmin
+        return response.status_code
+
+    def project_task_post_member(
+        self, token: str, project_name: str, task_name: str, username: str
+    ) -> int:
+
+        response = self.client.post(
+            f"/projects/{project_name}/tasks/{task_name}/members/{username}",
+            headers={"token-uuid": token},
+        )
+        if response.status_code == 403:
+            raise NotAdmin
+        return response.status_code
+
+    def project_task_delete_member(
+        self, token: str, project_name: str, task_name: str, username: str
+    ) -> Response:
+
+        response = self.client.delete(
+            f"/projects/{project_name}/tasks/{task_name}/members/{username}",
+            headers={"token-uuid": token},
+        )
+        if response.status_code == 403:
+            raise NotAdmin
+        return response
+
+    def project_task_update_progress(
+        self, token: str, project_name: str, task_name: str, progress: int | bool
+    ) -> Response:
+
+        response = self.client.put(
+            f"/projects/{project_name}/tasks/{task_name}/completion?completion={progress}",
+            headers={"token-uuid": token},
+        )
+
+        if response.status_code == 403:
+            raise NotAdmin
+        return response
+
+
+# load settings file
+try:
+    with open("data/settings.yaml", "r") as fp:
+        settings = yaml.safe_load(fp)
+except FileNotFoundError:
+    with open("data/settings.yaml", "w") as fp:
+        # default values
+        settings = {"HOST": "127.0.0.1", "PORT": 2727}
+        yaml.dump(settings, fp)
+
+HOST = settings["HOST"]
+PORT = settings["PORT"]
 
 
 # object used throughout the app
-api = API("127.0.0.1", 2727)
+api = API(HOST, PORT)
