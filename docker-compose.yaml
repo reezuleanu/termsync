@@ -1,0 +1,41 @@
+version: '3.8'
+
+
+services:
+  mongodb:
+    image: mongo
+    container_name: my_mongodb
+    networks:
+      my_network:
+        ipv4_address: 172.18.0.2
+
+    # ports:
+    #   - "27017:27017"
+    volumes:
+      - ./database:/data/db
+
+
+  api:
+    build:
+      context: .
+      dockerfile: src/server/Dockerfile
+    depends_on:
+      - mongodb
+    ports:
+      - "2727:2727"
+    networks:
+      my_network:
+        ipv4_address: 172.18.0.3
+    environment:
+      - PYMONGO_DATABASE_HOST=172.18.0.2
+      - PYMONOGO_DATABASE_PORT=27017
+
+
+# docker network
+networks:
+  my_network:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.18.0.0/16
