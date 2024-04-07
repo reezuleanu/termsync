@@ -221,7 +221,7 @@ def test_remove_nonexisting_member() -> None:
         headers={"content-type": "application/json", "token-uuid": token1},
     )
 
-    assert response.status_code == 404
+    assert response.status_code == 400
     assert response.json()["detail"] == "User is not part of the task"
 
 
