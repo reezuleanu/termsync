@@ -18,7 +18,7 @@ class Database:
 
     def __init__(self) -> None:
         self.client = MongoClient(host=DB_HOST, port=DB_PORT)
-        self.db = self.client.tests
+        self.db = self.client.termsync
 
     # USER METHODS
     def get_user(self, user: str | ObjectId) -> User:
