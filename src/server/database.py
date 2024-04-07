@@ -3,13 +3,14 @@ from pymongo import MongoClient, cursor
 from uuid import UUID
 from bson import ObjectId
 from typing import Union, List
+import os
 
 # relative imports
 from .models import Token, Token_DB, User, User_DB, Project
 
 
-DB_HOST = "127.0.0.1"
-DB_PORT = 27017
+DB_HOST = os.environ["PYMONGO_DATABASE_HOST"]
+DB_PORT = int(os.environ["PYMONGO_DATABASE_PORT"])
 
 
 class Database:

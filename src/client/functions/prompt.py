@@ -59,7 +59,7 @@ class Prompt:
                 except NotLoggedIn:
                     self.parent.startup()  # restart app
 
-                except httpx.ConnectError:
+                except (httpx.ConnectError, httpx.ReadTimeout):
                     self.parent.console.print(
                         "Cannot connect to server\n", style="danger"
                     )

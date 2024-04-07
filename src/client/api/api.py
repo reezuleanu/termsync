@@ -451,9 +451,16 @@ except FileNotFoundError:
         # default values
         settings = {"HOST": "127.0.0.1", "PORT": 2727}
         yaml.dump(settings, fp)
-
-HOST = settings["HOST"]
-PORT = settings["PORT"]
+try:
+    HOST = settings["HOST"]
+    PORT = settings["PORT"]
+except TypeError:
+    with open("data/settings.yaml", "w") as fp:
+        HOST = "127.0.0.1"
+        PORT = 2727
+        # default values
+        settings = {"HOST": HOST, "PORT": PORT}
+        yaml.dump(settings, fp)
 
 
 # object used throughout the app
