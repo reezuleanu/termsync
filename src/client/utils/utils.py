@@ -1,6 +1,8 @@
 from rich.console import Console
 import json
+import yaml
 from bson import json_util, BSON
+import platform
 from os import system
 from .exceptions import NotLoggedIn
 
@@ -39,10 +41,15 @@ def replace(list: list, value: any, replacement: any) -> None:
     list[index] = replacement
 
 
-def clear_screen(*args) -> None:
+def clear_screen() -> None:
     """System call to clear screen"""
 
-    system("clear")
+    os = platform.system()
+
+    if os == "Windows":
+        system("cls")
+    else:
+        system("clear")
 
 
 def get_token() -> str:
@@ -93,3 +100,27 @@ def get_username() -> str:
     #     raise NotLoggedIn
 
     # return username
+
+
+def get_settings(setting_name: str) -> str:
+
+    setting: str = None
+    try:
+        with open("data/settings.yaml", "r") as fp:
+            setting = yaml.safe_load(fp)[setting_name]
+
+    except (KeyError, FileNotFoundError):
+        with open("data/settings.yaml", "w") as fp:
+            # default values
+            HOST = "127.0.0.1"
+            PORT = 2727
+            settings = {"HOST": HOST, "PORT": PORT}
+            yaml.safe_dump(settings, fp)
+
+            try:
+                setting = settings[setting_name]
+            except KeyError:
+                print("Wrong setting name")
+
+    finally:
+        return setting

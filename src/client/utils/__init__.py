@@ -7,6 +7,7 @@ from .utils import (
     clear_screen,
     get_token,
     get_username,
+    get_settings,
 )
 
 from .exceptions import NotAdmin, NotLoggedIn
