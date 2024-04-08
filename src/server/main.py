@@ -22,23 +22,23 @@ app.include_router(projects.router)
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
+# logger formatter
 formatter = logging.Formatter(fmt="[%(asctime)s]: %(message)s")
-
-file_handler = logging.FileHandler(
-    f"src/server/logs/{datetime.datetime.now().date()}.log"
-)
-file_handler.setFormatter(formatter)
-
-logger.handlers = [file_handler]
 
 
 # add middleware
 @app.middleware("http")
 async def api_logger(request: Request, call_next):
 
+    # refresh date for file handler
+    file_handler = logging.FileHandler(
+        f"src/server/logs/{datetime.datetime.now().date()}.log"
+    )
+    file_handler.setFormatter(formatter)
+    logger.handlers = [file_handler]
+
     # get basic data from request
     log = {
-        "time": "time",
         "url": request.url.path,
         "method": request.method,
     }
