@@ -29,6 +29,9 @@ def db_depend_override() -> MockDatabase:
 # init client
 client = TestClient(app)
 
+# remove middleware (breaks the tests)
+app.user_middleware.clear()
+
 # mock users
 user1 = User(username="mockuser1", full_name="fullname1")  # project owner
 user2 = User(username="mockuser2", full_name="fullname2")  # project moderator
