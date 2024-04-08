@@ -8,6 +8,9 @@ from .utils import (
     get_token,
     get_username,
     get_settings,
+    write_update_cache,
+    pop_update_cache,
+    read_update_cache,
 )
 
 from .exceptions import NotAdmin, NotLoggedIn

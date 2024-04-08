@@ -7,7 +7,7 @@ from random import choice
 from models import Project, Discrete_Task, Milestone_Task
 from ui import console
 from api import API, api
-from utils import get_token, NotLoggedIn, NotAdmin
+from utils import get_token, NotLoggedIn, NotAdmin, read_update_cache, pop_update_cache
 
 
 def create_project(*args, console: Console = console, api: API = api) -> None:
@@ -90,6 +90,8 @@ def show_project(
                 style="danger",
             )
     else:
+        if project.name in read_update_cache():
+            pop_update_cache(project.name)
         print_project(project)
 
 

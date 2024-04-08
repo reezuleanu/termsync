@@ -440,6 +440,12 @@ class API:
             raise NotAdmin
         return response
 
+    def get_project_updates(self, token: str) -> Response:
+
+        response = self.client.get("/update/projects", headers={"token-uuid": token})
+
+        return response
+
 
 HOST = get_settings("HOST")
 PORT = int(get_settings("PORT"))

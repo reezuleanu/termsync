@@ -1,10 +1,29 @@
 from rich.console import Console
 from time import sleep
+from enum import Enum
+import httpx
 
 from api import API
 from ui import display_logo
-from utils import clear_screen, get_token, get_username
+from utils import (
+    clear_screen,
+    get_token,
+    get_username,
+    write_update_cache,
+    read_update_cache,
+)
 from functions import Prompt
+
+
+class Status(Enum):
+    CONNECTED = "[green]connected[/]"
+    DISCONNECTED = "[red]disconnected[/]"
+    UPDATE = "🔔[yellow]update[/]"
+
+
+class State(Enum):
+    RUNNING = "running"
+    EXITING = "exiting"
 
 
 class App:
@@ -13,6 +32,8 @@ class App:
         self.console = console
         self.api = api
         self.prompt = Prompt(parent=self)
+        self.status = Status.DISCONNECTED
+        self.state = State.RUNNING
 
     def startup(self) -> None:
         """App startup function. It displays logo, checks token, then passes control to the prompt function
@@ -43,6 +64,7 @@ class App:
             while rc is None and i < 5:
                 try:
                     rc = self.api.check_token(token)
+                # in case of connection issues
                 except:
                     i = i + 1
                     self.console.print(
@@ -60,6 +82,9 @@ class App:
                 )
                 self.prompt.run(None)
 
+            # if it got to this point, it means it connected to the server
+            self.status = Status.CONNECTED
+
             # if token is expired
             if rc is False:
                 self.console.print(
@@ -75,31 +100,37 @@ class App:
 
     def run(self) -> None:
         try:
-            # logo print
-            # display_logo(console)
-            # display_logo(console)
-            # display_logo(console)
-
-            # ! Layout example
-            # layout = Layout()
-            # panel_left = Panel.fit(
-            #     # "This is not a warning",
-            #     logo2,
-            #     border_style="blue",
-            # )
-            # panel_center = Panel.fit(
-            #     # "This is not a warning",
-            #     logo2,
-            #     border_style="blue",
-            # )
-            # layout.split_row(Layout(name="left"), Layout(name="center"))
-            # layout["left"].update(panel_left)
-            # layout["center"].update(panel_center)
-            # layout["right"].update(Panel.fit(logo, border_style="red", style="bold red"))
-            # console.print(layout)
-
             while True:
                 self.startup()
+
+        # shutdown sequence
         except KeyboardInterrupt:
+            self.state = State.EXITING
             self.api.client.close()
             clear_screen()
+            exit(0)
+
+    def get_update(self) -> None:
+
+        token = get_token()
+
+        while self.state == State.RUNNING:
+
+            try:
+                response = self.api.get_project_updates(token)
+
+                if response.status_code == 200:
+
+                    if len(response.json()) > 0 or read_update_cache() != [""]:
+                        self.status = Status.UPDATE
+
+                        if len(response.json()) > 0:
+                            write_update_cache(*response.json())
+                    else:
+                        self.status = Status.CONNECTED
+                else:
+                    self.status = Status.DISCONNECTED
+
+                sleep(3)
+            except httpx.ConnectError:
+                continue

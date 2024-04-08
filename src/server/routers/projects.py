@@ -502,3 +502,23 @@ def remove_task_member(
         raise HTTPException(500, "Could not remove user from task")
 
     return {"detail": "User removed from task successfully"}
+
+
+@router.get("/update/projects")
+def update_projects(
+    user: User = Depends(token_auth), db: Database = Depends(db_depend)
+) -> list:
+
+    user_data = db.get_user_db(user.username)
+
+    if user_data is None:
+        raise HTTPException(404, "Could not find user")
+
+    updated_projects = user_data.update_projects
+
+    user_data.update_projects = []
+
+    if db.update_user(user_data, user.username) is False:
+        raise HTTPException(500)
+
+    return updated_projects

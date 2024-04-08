@@ -124,3 +124,46 @@ def get_settings(setting_name: str) -> str:
 
     finally:
         return setting
+
+
+def write_update_cache(*to_update: str) -> None:
+
+    try:
+        fp = open("data/update_cache.txt", "a")
+    except FileNotFoundError:
+        fp = open("data/update_cache.txt", "w")
+
+    fp.write(*to_update)
+
+    fp.close()
+
+
+def read_update_cache() -> list:
+
+    try:
+        fp = open("data/update_cache.txt", "r")
+    except FileNotFoundError:
+        return []
+
+    return fp.read().split("\n")
+
+
+def pop_update_cache(updating: str) -> None:
+
+    fp = open("data/update_cache.txt", "r")
+
+    cache = fp.read().split("\n")
+
+    fp.close()
+
+    if updating in cache:
+        cache.pop(cache.index(updating))
+
+    fp = open("data/update_cache.txt", "w")
+
+    if len(cache) > 0:
+        fp.write(*cache)
+    else:
+        fp.write("")
+
+    fp.close()

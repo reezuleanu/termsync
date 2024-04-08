@@ -43,6 +43,9 @@ class Prompt:
         while True:
 
             timestamp = time.strftime("%H:%M:%S", time.localtime())
+            self.parent.console.print(
+                f"[{self.parent.status.value}]", end="", justify="right"
+            )
             self.parent.console.print(f"[{timestamp}]", end="")
             command = input(f"[{username}] >> ")
             self.parent.console.print()

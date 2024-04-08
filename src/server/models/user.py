@@ -26,5 +26,5 @@ class User_DB(User):
     power: str = "user"  # user administrator priviledges (user/admin)
 
     # attribute telling the client if it should call GET for the IDs in the list
-    update_projects: List[ObjectId] = []
-    update_messages: List[ObjectId] = []
+    update_projects: List[str] = []
+    update_messages: List[str] = []

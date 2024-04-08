@@ -239,6 +239,14 @@ class Database:
         request = self.db.projects.update_one(
             {"name": project_name}, {"$set": updated_project.model_dump()}
         )
+
+        # update all members
+        for username in updated_project.members:
+            self.db.users.update_one(
+                {"username": username},
+                {"$push": {"update_projects": updated_project.name}},
+            )
+
         return request.acknowledged
 
     def delete_project(self, project_name: str) -> bool:
