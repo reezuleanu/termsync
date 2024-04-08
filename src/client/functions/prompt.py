@@ -1,5 +1,3 @@
-from rich.console import Console
-from rich.text import Text
 import httpx
 import time
 from .user_functions import (
@@ -66,11 +64,11 @@ class Prompt:
                     self.parent.console.print(
                         "Cannot connect to server\n", style="danger"
                     )
-                # except (AttributeError, TypeError):
-                #     self.parent.console.print(
-                #         f"Incorrect usage, please use 'help {command[0]}' for instructions.\n",
-                #         style="warning",
-                #     )
+                except (AttributeError, TypeError):
+                    self.parent.console.print(
+                        f"Incorrect usage, please use 'help {command[0]}' for instructions.\n",
+                        style="warning",
+                    )
                 except NotImplementedError:
                     self.parent.console.print(
                         "This feature is not yet finished, please be patient\n",
