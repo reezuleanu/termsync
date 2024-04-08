@@ -3,4 +3,3 @@
 *.DS_Store
 .$server-models.drawio.bkp
 src/client/data/*
-database/*
