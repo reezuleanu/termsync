@@ -112,9 +112,8 @@ class App:
 
     def get_update(self) -> None:
 
-        token = get_token()
-
         while self.state == State.RUNNING:
+            token = get_token()
 
             try:
                 response = self.api.get_project_updates(token)
@@ -132,5 +131,6 @@ class App:
                     self.status = Status.DISCONNECTED
 
                 sleep(3)
-            except httpx.ConnectError:
+            except:
+                self.status = Status.DISCONNECTED
                 continue

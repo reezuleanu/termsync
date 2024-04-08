@@ -242,10 +242,12 @@ class Database:
 
         # update all members
         for username in updated_project.members:
-            self.db.users.update_one(
-                {"username": username},
-                {"$push": {"update_projects": updated_project.name}},
-            )
+            user_db = User_DB(**self.db.users.find_one({"username": username}))
+            if updated_project.name not in user_db.update_projects:
+                self.db.users.update_one(
+                    {"username": username},
+                    {"$push": {"update_projects": updated_project.name}},
+                )
 
         return request.acknowledged
 

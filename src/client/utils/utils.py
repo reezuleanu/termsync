@@ -130,11 +130,26 @@ def write_update_cache(*to_update: str) -> None:
 
     try:
         fp = open("data/update_cache.txt", "a")
+        # if read_update_cache() == [""]:
+        #     fp = open("data/update_cache.txt", "w")
     except FileNotFoundError:
         fp = open("data/update_cache.txt", "w")
 
-    fp.write(*to_update)
+    for update in to_update:
+        if update not in fp.read():
+            fp.write(f"{update}\n")
 
+    fp.close()
+
+
+def wipe_update_cache() -> None:
+
+    try:
+        fp = open("data/update_cache.txt", "w")
+    except FileNotFoundError:
+        return
+
+    fp.write("")
     fp.close()
 
 

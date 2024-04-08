@@ -8,7 +8,7 @@ import json
 from ui import console
 from models import User
 from api import API, api
-from utils import get_token, get_username, NotLoggedIn, NotAdmin
+from utils import get_token, get_username, NotLoggedIn, NotAdmin, wipe_update_cache
 
 
 def register(*args, console: Console = console, api: API = api) -> None:
@@ -38,6 +38,9 @@ def register(*args, console: Console = console, api: API = api) -> None:
 
     with open("data/session.json", "w") as fp:
         json.dump({"token-uuid": token, "username": username}, fp)
+
+    # wipe update cache
+    wipe_update_cache()
 
     console.print("\nUser created successfully\n", style="success")
 
@@ -73,6 +76,8 @@ def login(
     # save token (none if login failed)
     with open("data/session.json", "w") as fp:
         json.dump({"token-uuid": token, "username": username}, fp)
+    # wipe update cache
+    wipe_update_cache()
 
 
 def delete_user(

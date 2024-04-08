@@ -11,6 +11,7 @@ from .utils import (
     write_update_cache,
     pop_update_cache,
     read_update_cache,
+    wipe_update_cache,
 )
 
 from .exceptions import NotAdmin, NotLoggedIn
