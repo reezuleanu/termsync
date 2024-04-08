@@ -40,13 +40,17 @@ class Prompt:
 
         while True:
 
+            # prompt
             timestamp = time.strftime("%H:%M:%S", time.localtime())
             self.parent.console.print(
                 f"[{self.parent.status.value}]", end="", justify="right"
             )
             self.parent.console.print(f"[{timestamp}]", end="")
+
+            # input
             command = input(f"[{username}] >> ")
-            self.parent.console.print()
+
+            self.parent.console.print()  # add space
 
             # split command by spaces
             command = command.split(" ")
@@ -83,6 +87,7 @@ class Prompt:
                 self.parent.startup()  # restart app
 
             elif command[0] == "disconnect":
+                # wipe session data
                 with open("data/session.json", "w") as fp:
                     fp.write("")
                 self.parent.console.print(

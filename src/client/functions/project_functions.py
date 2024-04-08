@@ -11,6 +11,7 @@ from utils import get_token, NotLoggedIn, NotAdmin, read_update_cache, pop_updat
 
 
 def create_project(*args, console: Console = console, api: API = api) -> None:
+    """Create new project"""
 
     # check token
     token = get_token()
@@ -24,9 +25,9 @@ def create_project(*args, console: Console = console, api: API = api) -> None:
         return
 
     project_description = str(input("\nProject description: "))
-
     project = Project(name=project_name, description=project_description)
 
+    # api call
     rc = api.post_project(project, token)
 
     if rc == 1:
@@ -44,9 +45,12 @@ def create_project(*args, console: Console = console, api: API = api) -> None:
 
 
 def show_updated(*args, console: Console = console) -> None:
+    """Show which projects were changed since last viewing them"""
 
+    # random color for printing
     color = choice(["red", "blue", "green", "cyan", "purple", "magenta", "yellow"])
 
+    # get cache data
     try:
         fp = open("data/update_cache.txt", "r")
         cache = fp.read()
@@ -59,6 +63,7 @@ def show_updated(*args, console: Console = console) -> None:
     if cache == "":
         cache = "No projects updated"
 
+    # print updated projects
     results = Panel.fit(
         f"[{color}]\n{cache}\n[/]", title="updated projects", border_style=color
     )
@@ -99,6 +104,7 @@ def show_project(
             print_all_projects(projects)
         return
 
+    # api call
     project = api.get_project(token, project_name)
 
     if type(project) is int:
@@ -118,10 +124,16 @@ def show_project(
 
 
 def print_project(project_data: Project, console: Console = console) -> None:
+    """Function to properly display project data"""
 
+    # random color for printing
     color = choice(["red", "blue", "green", "cyan", "purple", "magenta", "yellow"])
+
+    # join lists into strings
     moderators = ", ".join(project_data.moderators)
     members = ", ".join(project_data.members)
+
+    # convert task objects to strings
     tasks = ""
     for task in project_data.tasks:
         if type(task) is Discrete_Task:
@@ -143,6 +155,7 @@ def print_project(project_data: Project, console: Console = console) -> None:
 """
         tasks = tasks + converted
 
+    # print project data
     data = Panel.fit(
         f"""
 [{color}]Owner: [/]{project_data.owner}\n
@@ -157,26 +170,41 @@ def print_project(project_data: Project, console: Console = console) -> None:
     console.print(data)
 
 
-def print_all_projects(query: dict, console: Console = console) -> None:
+def print_all_projects(projects: dict, console: Console = console) -> None:
+    """Print all projects the user is a member of
 
+    Args:
+        projects (dict): list of projects, format: {project: project.progress}
+        console (Console, optional): _description_. Defaults to console.
+    """
+
+    # random color for printing
     color = choice(["red", "blue", "green", "cyan", "purple", "magenta", "yellow"])
 
-    if len(query.keys()) == 0:
+    # if user is not part of any projects
+    if len(projects.keys()) == 0:
         console.print("You are not part of any projects\n", style=color)
         return
 
-    for project in query:
+    # proint projects
+    for project in projects:
         console.print(f"[{color}]{project}[/]\n")
         console.print(
-            f"Progress: [{query[project][0]}/{query[project][1]}]\n",
+            f"Progress: [{projects[project][0]}/{projects[project][1]}]\n",
         )
 
-    console.print()
+    console.print()  # add space
 
 
 def edit_project(
     *project_name: str, console: Console = console, api: API = api
 ) -> None:
+    """Edit project data (only description is eligible)
+
+
+    Raises:
+        NotLoggedIn: expired session
+    """
 
     # join project name into a single string
     project_name = " ".join(project_name)
@@ -195,7 +223,8 @@ def edit_project(
     # get latest data
     project = api.get_project(token, project_name)
 
-    if project is None:
+    # the way i coded the api interface is already starting to punish me
+    if type(project) is int:
         console.print("Could not find project\n", style="danger")
 
     # input
@@ -206,6 +235,7 @@ def edit_project(
 
     project.description = project_description
 
+    # update project on server
     try:
         rc = api.put_project(token, project_name, project)
     except NotAdmin:

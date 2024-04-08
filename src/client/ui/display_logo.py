@@ -14,24 +14,11 @@ def display_logo(console: Console) -> None:
     # random logo color
     color = choice(["red", "blue", "green", "cyan", "purple", "magenta", "yellow"])
 
-    # logo text
-    logo = Text(
-        """
-$$$$$$$$\                                 $$$$$$\                                
-\__$$  __|                               $$  __$$\                               
-   $$ | $$$$$$\   $$$$$$\  $$$$$$\$$$$\  $$ /  \__|$$\   $$\ $$$$$$$\   $$$$$$$\ 
-   $$ |$$  __$$\ $$  __$$\ $$  _$$  _$$\ \$$$$$$\  $$ |  $$ |$$  __$$\ $$  _____|
-   $$ |$$$$$$$$ |$$ |  \__|$$ / $$ / $$ | \____$$\ $$ |  $$ |$$ |  $$ |$$ /      
-   $$ |$$   ____|$$ |      $$ | $$ | $$ |$$\   $$ |$$ |  $$ |$$ |  $$ |$$ |      
-   $$ |\$$$$$$$\ $$ |      $$ | $$ | $$ |\$$$$$$  |\$$$$$$$ |$$ |  $$ |\$$$$$$$\ 
-   \__| \_______|\__|      \__| \__| \__| \______/  \____$$ |\__|  \__| \_______|
-                                                   $$\   $$ |                    
-                                                   \$$$$$$  |                    
-                                                    \______/                     
-""",
-        justify="left",
-        style=f"bold {color}",
-    )
+    # load logo text
+    with open("ui/logo.txt", "r") as fp:
+        logo = fp.read()
+
+    logo = Text(logo, justify="left", style=f"bold {color}")
 
     # display logo
     console.print(Panel.fit(logo, border_style=color), justify="center")

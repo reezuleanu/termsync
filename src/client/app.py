@@ -27,13 +27,14 @@ class State(Enum):
 
 
 class App:
+    """Class for the app proper"""
 
     def __init__(self, console: Console, api: API) -> None:
-        self.console = console
-        self.api = api
-        self.prompt = Prompt(parent=self)
-        self.status = Status.DISCONNECTED
-        self.state = State.RUNNING
+        self.console = console  # rich console
+        self.api = api  # api interface
+        self.prompt = Prompt(parent=self)  # prompt component
+        self.status = Status.DISCONNECTED  # connection status
+        self.state = State.RUNNING  # app status
 
     def startup(self) -> None:
         """App startup function. It displays logo, checks token, then passes control to the prompt function
@@ -111,6 +112,8 @@ class App:
             exit(0)
 
     def get_update(self) -> None:
+        """Thread that periodically checks in with the api. It determines if the client is still connected,
+        and handles the project update functionality"""
 
         while self.state == State.RUNNING:
             token = get_token()

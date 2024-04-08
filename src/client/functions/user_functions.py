@@ -89,7 +89,7 @@ def delete_user(
     """Delete account. Upon deletion, app exits
 
     Args:
-        username (str | None, optional): Username of account to delete. If provided, it won't ask you for the username again.
+        username (str | None, optional): Username of account to delete. If not provided, use own username
 
     Raises:
         NotLoggedIn: invalid token
@@ -102,7 +102,7 @@ def delete_user(
 
     # input
     if username is None:
-        username = str(input("Username: "))
+        username = get_username()
 
     password = str(getpass.getpass("\nPassword: "))
 
@@ -128,7 +128,7 @@ def delete_user(
 
 def edit_user(
     username: str | None = None,
-    # token: str = get_token(),
+    # token: str = get_token(), # failed dependency injection attempt
     console: Console = console,
     api: API = api,
 ) -> None:

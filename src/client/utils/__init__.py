@@ -1,4 +1,4 @@
-"""Module containing all server utils"""
+"""Module containing all client utils and custom exceptions"""
 
 from .utils import (
     bson2dict,

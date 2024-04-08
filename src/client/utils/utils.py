@@ -44,8 +44,8 @@ def replace(list: list, value: any, replacement: any) -> None:
 def clear_screen() -> None:
     """System call to clear screen"""
 
+    # determine which syntax to use based on OS
     os = platform.system()
-
     if os == "Windows":
         system("cls")
     else:
@@ -103,6 +103,14 @@ def get_username() -> str:
 
 
 def get_settings(setting_name: str) -> str:
+    """Get a setting from settings.yaml
+
+    Args:
+        setting_name (str): name of setting to get value of
+
+    Returns:
+        str: value as a string
+    """
 
     setting: str = None
     try:
@@ -130,8 +138,12 @@ def get_settings(setting_name: str) -> str:
     return setting
 
 
+# projects that have been modified since last seen will be saved in cache until
+# user checks them
 def write_update_cache(*to_update: str) -> None:
+    """Write project names that have updated to cache file"""
 
+    # get already existing cache
     try:
         fp = open("data/update_cache.txt", "r")
         cache = fp.read().split("\n")
@@ -139,51 +151,51 @@ def write_update_cache(*to_update: str) -> None:
     except FileNotFoundError:
         pass
 
+    # add projects that are not already in cache
     for update in to_update:
         if update not in cache:
             cache.append(update)
 
+    # write new cache
     with open("data/update_cache.txt", "w") as fp:
         fp.write("\n".join(cache))
 
 
 def wipe_update_cache() -> None:
+    """Wipe cache data (useful when switching users)"""
 
-    try:
-        fp = open("data/update_cache.txt", "w")
-    except FileNotFoundError:
-        return
-
-    fp.write("")
-    fp.close()
+    with open("data/update_cache.txt", "w") as fp:
+        fp.write("")
 
 
 def read_update_cache() -> list:
+    """Read projects in cache
+
+    Returns:
+        list: list of projects in cache
+    """
 
     try:
-        fp = open("data/update_cache.txt", "r")
+        with open("data/update_cache.txt", "r") as fp:
+            return fp.read().split("\n")
     except FileNotFoundError:
-        return []
-
-    return fp.read().split("\n")
+        return [""]
 
 
 def pop_update_cache(updating: str) -> None:
+    """Take a project out of cache (used when user checks project)"""
 
-    fp = open("data/update_cache.txt", "r")
+    with open("data/update_cache.txt", "r") as fp:
+        cache = fp.read().split("\n")
 
-    cache = fp.read().split("\n")
-
-    fp.close()
-
+    # if project was updated since last viewing it, it should be in cache
+    # take it out if it did update since last view
     if updating in cache:
         cache.pop(cache.index(updating))
 
-    fp = open("data/update_cache.txt", "w")
-
-    if len(cache) > 0:
-        fp.write("\n".join(cache))
-    else:
-        fp.write("")
-
-    fp.close()
+    # write cache without project back to file
+    with open("data/update_cache.txt", "w") as fp:
+        if len(cache) > 0:
+            fp.write("\n".join(cache))
+        else:
+            fp.write("")
