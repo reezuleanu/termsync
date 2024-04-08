@@ -62,18 +62,24 @@ class App:
             # check if the token is still valid
             rc = None
             i = 0
-            while rc is None and i < 5:
-                try:
-                    rc = self.api.check_token(token)
-                # in case of connection issues
-                except:
-                    i = i + 1
-                    self.console.print(
-                        "Could not connect to server\n",
-                        style="danger",
-                    )
-                    self.console.print("Retrying...\n")
-                    sleep(5)
+            # status with spinner
+            with self.console.status(
+                "[bold red]Retrying[/]",
+                spinner="simpleDotsScrolling",
+                spinner_style="bold white",
+            ):
+                while rc is None and i < 5:
+                    try:
+                        rc = self.api.check_token(token)
+                    # in case of connection issues
+                    except:
+                        i = i + 1
+                        self.console.print(
+                            "Could not connect to server\n",
+                            style="danger",
+                        )
+                        # self.console.print("Retrying...\n")
+                        sleep(5)
 
             # if failed to connect to server and check token
             if rc is None:
