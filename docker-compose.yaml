@@ -30,7 +30,7 @@ services:
       - PYMONGO_DATABASE_HOST=172.18.0.2
       - PYMONOGO_DATABASE_PORT=27017
     volumes:
-      -./src/server/logs:/server/src/server/logs
+      - ./src/server/logs:/server/src/server/logs
 
 
 # docker network
