@@ -8,9 +8,12 @@ import os
 # relative imports
 from .models import Token, Token_DB, User, User_DB, Project
 
-
-DB_HOST = os.environ["PYMONGO_DATABASE_HOST"]
-DB_PORT = int(os.environ["PYMONGO_DATABASE_PORT"])
+try:
+    DB_HOST = os.environ["PYMONGO_DATABASE_HOST"]
+    DB_PORT = int(os.environ["PYMONGO_DATABASE_PORT"])
+except KeyError:
+    DB_HOST = "127.0.0.1"
+    DB_PORT = 27017
 
 
 class Database:

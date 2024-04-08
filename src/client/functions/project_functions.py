@@ -135,6 +135,11 @@ def print_project(project_data: Project, console: Console = console) -> None:
 def print_all_projects(query: dict, console: Console = console) -> None:
 
     color = choice(["red", "blue", "green", "cyan", "purple", "magenta", "yellow"])
+
+    if len(query.keys()) == 0:
+        console.print("You are not part of any projects\n", style=color)
+        return
+
     for project in query:
         console.print(f"[{color}]{project}[/]\n")
         console.print(

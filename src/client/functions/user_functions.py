@@ -66,13 +66,13 @@ def login(
     # if call is not successfull
     if token is None:
         console.print("\nWrong username or password\n", style="danger")
-        return
+        username = None
+    else:
+        console.print("\nLogin successful\n", style="success")
 
-    # save token
+    # save token (none if login failed)
     with open("data/session.json", "w") as fp:
         json.dump({"token-uuid": token, "username": username}, fp)
-
-    console.print("\nLogin successful\n", style="success")
 
 
 def delete_user(

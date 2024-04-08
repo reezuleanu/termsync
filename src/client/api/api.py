@@ -3,9 +3,8 @@ import httpx
 from httpx import Response
 from models import User, Project, Discrete_Task, Milestone_Task
 import hashlib
-import yaml
 
-from utils import NotAdmin
+from utils import NotAdmin, get_settings
 
 
 class API:
@@ -442,26 +441,8 @@ class API:
         return response
 
 
-# load settings file
-try:
-    with open("data/settings.yaml", "r") as fp:
-        settings = yaml.safe_load(fp)
-except FileNotFoundError:
-    with open("data/settings.yaml", "w") as fp:
-        # default values
-        settings = {"HOST": "127.0.0.1", "PORT": 2727}
-        yaml.dump(settings, fp)
-try:
-    HOST = settings["HOST"]
-    PORT = settings["PORT"]
-except TypeError:
-    with open("data/settings.yaml", "w") as fp:
-        HOST = "127.0.0.1"
-        PORT = 2727
-        # default values
-        settings = {"HOST": HOST, "PORT": PORT}
-        yaml.dump(settings, fp)
-
+HOST = get_settings("HOST")
+PORT = int(get_settings("PORT"))
 
 # object used throughout the app
 api = API(HOST, PORT)
