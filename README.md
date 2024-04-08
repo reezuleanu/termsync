@@ -22,3 +22,6 @@
 ### Client won't connect to the server
 - Make sure you changed the default HOST within data/settings.yaml
 - Make sure you are using the correct port (2727 by default, can be changed from Dockerfile and docker-compose.yaml)
+
+## Tests
+### Currently, there are only mock tests for the API (not full coverate), and none for the client. 
