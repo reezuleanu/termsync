@@ -24,7 +24,9 @@ logger.setLevel(logging.INFO)
 
 formatter = logging.Formatter(fmt="[%(asctime)s]: %(message)s")
 
-file_handler = logging.FileHandler(f"src/server/logs/{datetime.datetime.now().date()}")
+file_handler = logging.FileHandler(
+    f"src/server/logs/{datetime.datetime.now().date()}.log"
+)
 file_handler.setFormatter(formatter)
 
 logger.handlers = [file_handler]
