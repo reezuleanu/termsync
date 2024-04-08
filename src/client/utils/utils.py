@@ -119,11 +119,14 @@ def get_settings(setting_name: str) -> str:
 
             try:
                 setting = settings[setting_name]
+                return setting
             except KeyError:
                 print("Wrong setting name")
+                return None
 
-    finally:
-        return setting
+    # apparently this does not work
+    # finally:
+    #     return setting
 
 
 def write_update_cache(*to_update: str) -> None:
