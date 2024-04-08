@@ -43,6 +43,28 @@ def create_project(*args, console: Console = console, api: API = api) -> None:
     )
 
 
+def show_updated(*args, console: Console = console) -> None:
+
+    color = choice(["red", "blue", "green", "cyan", "purple", "magenta", "yellow"])
+
+    try:
+        fp = open("data/update_cache.txt", "r")
+        cache = fp.read()
+    except FileNotFoundError:
+        fp = open("data/update_cache.txt", "w")
+        fp.write("")
+        fp.close()
+        cache = ""
+
+    if cache == "":
+        cache = "No projects updated"
+
+    results = Panel.fit(
+        f"[{color}]\n{cache}\n[/]", title="updated projects", border_style=color
+    )
+    console.print(results)
+
+
 def show_project(
     *project_name: str, console: Console = console, api: API = api
 ) -> None:
@@ -124,6 +146,7 @@ def print_project(project_data: Project, console: Console = console) -> None:
     data = Panel.fit(
         f"""
 [{color}]Owner: [/]{project_data.owner}\n
+[{color}]Description: [/]{project_data.description}\n
 [{color}]Moderators: [/]{moderators}\n
 [{color}]Project members: [/]{members}\n
 [{color}]Tasks: [/]
@@ -858,6 +881,8 @@ def project(function: str, *args: str) -> callable:
     match function:
         case "show":
             return show_project(*args)
+        case "update":
+            return show_updated(*args)
         case "create":
             return create_project(*args)
         case "edit":

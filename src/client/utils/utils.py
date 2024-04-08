@@ -178,7 +178,7 @@ def pop_update_cache(updating: str) -> None:
     fp = open("data/update_cache.txt", "w")
 
     if len(cache) > 0:
-        fp.write(*cache)
+        fp.write("\n".join(cache))
     else:
         fp.write("")
 
