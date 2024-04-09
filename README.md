@@ -3,7 +3,7 @@
 </p>
 
 # What is TermSync
-Termsync is a novelty, open-source python CLI project management tool. It allows you to create projects and tasks, asign people to them, update the progress for the whole team to see, and so on, all from your terminal. 
+Termsync is a novelty, open-source python CLI project management tool. It allows you to create projects and tasks, assign people to them, update the progress for the whole team to see, and so on, all from your terminal. 
 
 # Public server
 #### http://172.104.229.159:2727/
