@@ -1,0 +1,93 @@
+<mxfile host="Electron" modified="2024-04-09T07:51:14.193Z" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/22.0.3 Chrome/114.0.5735.289 Electron/25.8.4 Safari/537.36" etag="xZ6k3-wdWKChqYp_PF8K" version="22.0.3" type="device">
+  <diagram name="Page-1" id="DlA_o81PhtzBPM63wzH7">
+    <mxGraphModel dx="2163" dy="1363" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="_cP82SX_ZG9PclY3ScHA-60" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="_cP82SX_ZG9PclY3ScHA-10" target="_cP82SX_ZG9PclY3ScHA-55">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-160" y="380" />
+              <mxPoint x="-160" y="5" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="_cP82SX_ZG9PclY3ScHA-10" value="API" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="-125" y="260" width="290" height="240" as="geometry" />
+        </mxCell>
+        <mxCell id="_cP82SX_ZG9PclY3ScHA-31" value="API interface, it holds all methods that communicate with the API. The functions don&#39;t directly do HTTP requests, they call one of these methods" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="_cP82SX_ZG9PclY3ScHA-10">
+          <mxGeometry y="30" width="290" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="_cP82SX_ZG9PclY3ScHA-37" value="Attributes" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" vertex="1" parent="_cP82SX_ZG9PclY3ScHA-10">
+          <mxGeometry y="90" width="290" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="_cP82SX_ZG9PclY3ScHA-38" value="host: ip of server" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="_cP82SX_ZG9PclY3ScHA-37">
+          <mxGeometry y="30" width="290" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="_cP82SX_ZG9PclY3ScHA-39" value="port: port of server" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="_cP82SX_ZG9PclY3ScHA-37">
+          <mxGeometry y="60" width="290" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="_cP82SX_ZG9PclY3ScHA-40" value="server: http://host:port" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="_cP82SX_ZG9PclY3ScHA-37">
+          <mxGeometry y="90" width="290" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="_cP82SX_ZG9PclY3ScHA-46" value="client: httpx client instance" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="_cP82SX_ZG9PclY3ScHA-37">
+          <mxGeometry y="120" width="290" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="_cP82SX_ZG9PclY3ScHA-59" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="_cP82SX_ZG9PclY3ScHA-14" target="_cP82SX_ZG9PclY3ScHA-54">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="_cP82SX_ZG9PclY3ScHA-14" value="Rich Console" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="-510" y="260" width="270" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="_cP82SX_ZG9PclY3ScHA-32" value="rich.console.Console object. Everything in the app is printed through this" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="_cP82SX_ZG9PclY3ScHA-14">
+          <mxGeometry y="30" width="270" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="_cP82SX_ZG9PclY3ScHA-47" value="Attributes" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" vertex="1" parent="_cP82SX_ZG9PclY3ScHA-14">
+          <mxGeometry y="90" width="270" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="_cP82SX_ZG9PclY3ScHA-48" value="theme: custom themes used for printing" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="_cP82SX_ZG9PclY3ScHA-47">
+          <mxGeometry y="30" width="270" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="_cP82SX_ZG9PclY3ScHA-26" value="Prompt" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="300" y="280" width="260" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="_cP82SX_ZG9PclY3ScHA-30" value="Prompt object responsible for taking user input and parsing it, then calling the appropriate commands" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="_cP82SX_ZG9PclY3ScHA-26">
+          <mxGeometry y="30" width="260" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="_cP82SX_ZG9PclY3ScHA-42" value="Attributes" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" vertex="1" parent="_cP82SX_ZG9PclY3ScHA-26">
+          <mxGeometry y="90" width="260" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="_cP82SX_ZG9PclY3ScHA-43" value="parent: the app instance" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="_cP82SX_ZG9PclY3ScHA-42">
+          <mxGeometry y="30" width="260" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="_cP82SX_ZG9PclY3ScHA-51" value="APP" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="-80" y="-160" width="290" height="270" as="geometry" />
+        </mxCell>
+        <mxCell id="_cP82SX_ZG9PclY3ScHA-52" value="APP object. This is the overall app, holding all components." style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="_cP82SX_ZG9PclY3ScHA-51">
+          <mxGeometry y="30" width="290" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="_cP82SX_ZG9PclY3ScHA-53" value="Attributes" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" vertex="1" parent="_cP82SX_ZG9PclY3ScHA-51">
+          <mxGeometry y="90" width="290" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="_cP82SX_ZG9PclY3ScHA-54" value="console" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="_cP82SX_ZG9PclY3ScHA-53">
+          <mxGeometry y="30" width="290" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="_cP82SX_ZG9PclY3ScHA-55" value="api" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="_cP82SX_ZG9PclY3ScHA-53">
+          <mxGeometry y="60" width="290" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="_cP82SX_ZG9PclY3ScHA-56" value="prompt" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="_cP82SX_ZG9PclY3ScHA-53">
+          <mxGeometry y="90" width="290" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="_cP82SX_ZG9PclY3ScHA-57" value="status: enum for connection status" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="_cP82SX_ZG9PclY3ScHA-53">
+          <mxGeometry y="120" width="290" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="_cP82SX_ZG9PclY3ScHA-61" value="state: enum for state of app (running | exiting)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="_cP82SX_ZG9PclY3ScHA-53">
+          <mxGeometry y="150" width="290" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="_cP82SX_ZG9PclY3ScHA-62" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="_cP82SX_ZG9PclY3ScHA-30" target="_cP82SX_ZG9PclY3ScHA-56">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
