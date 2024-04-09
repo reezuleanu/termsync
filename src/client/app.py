@@ -1,7 +1,7 @@
 from rich.console import Console
 from time import sleep
 from enum import Enum
-import httpx
+from sys import exit
 
 from api import API
 from ui import display_logo
