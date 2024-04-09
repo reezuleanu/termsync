@@ -1,11 +1,14 @@
+Version 0.2.0:
+    Client:
+        Fixes:
+            - status is now aligned with the rest of the prompt
+            - 'exit is not defined' no longer appearing when exiting program
+    Server:
+            - fixed logger not changing file name when date changes
+
 Version 0.1.0:
     - added changelog file
     - initial API release
     - initial client release
 
-Version 0.2.0:
-    Client:
-        TUI:
-            - status is now aligned with the rest of the prompt
-    Server:
         
