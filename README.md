@@ -25,11 +25,11 @@ The main feature are the projects. You can create projects and add tasks to trac
 
 ## Install instructions
 ### Client
-- clone repository (standalone releases coming soon)
-- inside the main folder, install dependencies (using pip install -r requirements.txt, poetry shell > poetry install, or any other venv you might be using)
-- inside src/client, run main.py
-- client will autogenerate settings file, change the default value of the HOST to the ip of the server you are using (172.104.229.159 for the public one)
-- enjoy the suffering of this UX nightmare
+1. clone repository to run from source. Alternatively, on Windows, you can download the latest standalone release and run the executable. In that case, skip to step 4.
+2. inside the main folder, install dependencies (using pip install -r requirements.txt, poetry shell > poetry install, or any other venv you might be using)
+3. inside src/client, run main.py
+4. client will autogenerate settings file, change the default value of the HOST to the ip of the server you are using (172.104.229.159 for the public one)
+5. enjoy the suffering of this UX nightmare
 
 ### Server
 - clone repository
