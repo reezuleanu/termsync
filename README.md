@@ -1,5 +1,5 @@
 # Public server
-#### 172.104.229.159
+#### http://172.104.229.159:2727/
 
 # Getting started
 ### Logging in
