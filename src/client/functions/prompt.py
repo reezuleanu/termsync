@@ -1,3 +1,4 @@
+import shutil
 import httpx
 import time
 from .user_functions import (
@@ -40,15 +41,27 @@ class Prompt:
 
         while True:
 
+            terminal_width, _ = shutil.get_terminal_size()
+
             # prompt
             timestamp = time.strftime("%H:%M:%S", time.localtime())
+
+            # use ansi escape codes to align the status and the prompt on the same line
+            print(
+                f"\033[{terminal_width - len(self.parent.status.value)}G", end=""
+            )  # set cursor to end of line - status length
+
             self.parent.console.print(
-                f"[{self.parent.status.value}]", end="", justify="right"
-            )
-            self.parent.console.print(f"[{timestamp}]", end="")
+                f"[{self.parent.status.value}]",
+                end="\r",
+            )  # print status, end at the beginning of the line
+
+            self.parent.console.print(
+                f"[{timestamp}]", end=""
+            )  # print timestamp, keep cursor on the same line
 
             # input
-            command = input(f"[{username}] >> ")
+            command = input(f"[{username}] >> ")  # print prompt
 
             self.parent.console.print()  # add space
 
