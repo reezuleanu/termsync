@@ -1,5 +1,4 @@
 **/__pycache__
 **/.pytest_cache
 *.DS_Store
-.$server-models.drawio.bkp
 src/client/data/*
