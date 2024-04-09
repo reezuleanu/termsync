@@ -31,6 +31,8 @@ services:
       - PYMONOGO_DATABASE_PORT=27017
     volumes:
       - ./src/server/logs:/server/src/server/logs
+      - "/etc/timezone:/etc/timezone:ro"
+      - "/etc/localtime:/etc/localtime:ro"
 
 
 # docker network
